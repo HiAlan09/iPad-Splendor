@@ -113,6 +113,13 @@
         // --- 样式配置 ---
         const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
 
+        // 漫威英雄列表
+        const MARVEL_HEROES = [
+            "钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", 
+            "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", 
+            "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"
+        ];
+
         const GEM_STYLES = {
           emerald: { 
             tokenGradient: 'bg-emerald-600', tokenBorder: 'border-emerald-400',
@@ -121,7 +128,7 @@
             costBg: 'bg-emerald-700/80', costColor: 'bg-emerald-500', textColor: 'text-emerald-600',
             pointColor: 'text-white text-stroke-black',
             iconFill: 'fill-emerald-500 stroke-black stroke-[1.5px]',
-            label: '绿宝石' 
+            label: '时间宝石' 
           },
           sapphire: { 
             tokenGradient: 'bg-blue-600', tokenBorder: 'border-blue-400',
@@ -130,7 +137,7 @@
             costBg: 'bg-blue-700/80', costColor: 'bg-blue-500', textColor: 'text-blue-600',
             pointColor: 'text-white text-stroke-black',
             iconFill: 'fill-blue-500 stroke-black stroke-[1.5px]',
-            label: '蓝宝石' 
+            label: '空间宝石' 
           },
           ruby: { 
             tokenGradient: 'bg-red-600', tokenBorder: 'border-red-400',
@@ -139,7 +146,7 @@
             costBg: 'bg-rose-700/80', costColor: 'bg-rose-500', textColor: 'text-rose-600',
             pointColor: 'text-white text-stroke-black',
             iconFill: 'fill-rose-500 stroke-black stroke-[1.5px]',
-            label: '红宝石' 
+            label: '现实宝石' 
           },
           diamond: { 
             tokenGradient: 'bg-slate-300', tokenBorder: 'border-white',
@@ -149,7 +156,7 @@
             costBg: 'bg-slate-300/90', costColor: 'bg-slate-200', textColor: 'text-slate-600',
             pointColor: 'text-white text-stroke-black',
             iconFill: 'fill-white stroke-black stroke-[1.5px]',
-            label: '钻石' 
+            label: '灵魂宝石' 
           },
           onyx: { 
             tokenGradient: 'bg-zinc-700', tokenBorder: 'border-zinc-500',
@@ -158,12 +165,12 @@
             costBg: 'bg-zinc-600/90', costColor: 'bg-zinc-500', textColor: 'text-stone-800',
             pointColor: 'text-white text-stroke-black',
             iconFill: 'fill-zinc-800 stroke-black stroke-[1.5px]',
-            label: '黑曜石' 
+            label: '力量宝石' 
           },
           gold: { 
             tokenGradient: 'bg-yellow-500', tokenBorder: 'border-yellow-200',
             textColor: 'text-amber-600',
-            label: '黄金' 
+            label: '心灵宝石' 
           },
         };
 
@@ -242,7 +249,13 @@
         };
 
         const generateNobles = () => {
-            const mapped = REAL_NOBLES.map((n, i) => ({ id: `noble-${i}`, points: n.points, req: mapCost(n.req) }));
+            const shuffledHeroes = shuffleArray([...MARVEL_HEROES]);
+            const mapped = REAL_NOBLES.map((n, i) => ({ 
+                id: `noble-${i}`, 
+                points: n.points, 
+                req: mapCost(n.req),
+                hero: shuffledHeroes[i % shuffledHeroes.length]
+            }));
             return shuffleArray(mapped).slice(0, 3);
         };
 
@@ -337,8 +350,13 @@
         const NobleTile = ({ noble }) => (
           <div className={`prevent-squish w-20 h-28 lg:w-24 lg:h-32 xl:w-28 xl:h-36 rounded-lg border-4 border-amber-500/50 flex flex-col items-center p-2 lg:p-2.5 shadow-xl relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200`}>
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] mix-blend-overlay"></div>
-            <div className="absolute top-0 right-0 p-1 opacity-20"><Crown size={50} className="text-amber-500" /></div>
-            <div className="relative z-10 w-full h-full flex flex-col justify-between">
+            {/* Hero Name Label */}
+            <div className="absolute top-0 inset-x-0 bg-amber-500/20 py-0.5 text-center">
+                <span className="text-[10px] font-black text-amber-900 leading-none block transform -translate-y-px">{noble.hero}</span>
+            </div>
+            
+            <div className="absolute top-4 right-0 p-1 opacity-20"><Crown size={50} className="text-amber-500" /></div>
+            <div className="relative z-10 w-full h-full flex flex-col justify-between mt-3">
               <div className="text-2xl lg:text-3xl xl:text-4xl font-serif font-black text-amber-900 self-start leading-none drop-shadow-sm">{noble.points}</div>
               <div className="flex flex-col gap-0.5 lg:gap-1 self-end w-full pl-1 lg:pl-2">
                 {Object.entries(noble.req).map(([type, amt]) => (
@@ -836,8 +854,8 @@
                         className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center border transition-all min-h-[40px] ${isReserving ? 'bg-yellow-500 border-yellow-300 ring-2 ring-yellow-400' : 'bg-yellow-900/10 border-yellow-900/30 opacity-80 hover:opacity-100 active:scale-95'}`}
                     >
                         <GemToken type="gold" size="md" showCount={false} />
-                        {/* 修改：文字保持“黄金”，通过背景色区分状态 */}
-                        <span className={`text-[10px] lg:text-xs font-bold mt-0.5 ${isReserving ? 'text-black' : 'text-yellow-700'}`}>黄金</span>
+                        {/* 修改：文字保持“心灵宝石”，通过背景色区分状态 */}
+                        <span className={`text-[10px] lg:text-xs font-bold mt-0.5 ${isReserving ? 'text-black' : 'text-yellow-700'}`}>心灵宝石</span>
                         <span className={`absolute top-1 right-2 text-xs font-black ${isReserving ? 'text-black' : 'text-yellow-800'}`}>{bank.gold}</span>
                     </button>
                     {GEM_TYPES.map(type => (
@@ -866,7 +884,7 @@
                   <div key={p.id} className={`flex transition-colors relative ${isActive ? 'bg-slate-900/50 -mt-[2px] z-10 box-content shadow-[inset_0_0_30px_rgba(245,158,11,0.1)]' : 'bg-[#0f172a]'}`}>
                     {/* Active turn indicator - Thinner gradient bar */}
                     {isActive && (
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(245,158,11,0.8)] z-20"></div>
+                        <div className="absolute top-0 left-0 w-full h-1 lg:h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(245,158,11,0.8)] z-20"></div>
                     )}
                     {isActive && <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md animate-pulse">当前回合</div>}
                     
