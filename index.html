@@ -120,6 +120,12 @@
             "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"
         ];
 
+        // 使用图片代理以解决防盗链问题
+        const AVATARS = {
+            judy: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/en/6/6f/Judy_Hopps.png",
+            nick: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/en/e/ea/Nick_Wilde.png"
+        };
+
         const GEM_STYLES = {
           emerald: { 
             tokenGradient: 'bg-emerald-600', tokenBorder: 'border-emerald-400',
@@ -708,7 +714,12 @@
           const handleReserveCard = (card) => {
             if (currentPlayer.reserved.length >= MAX_RESERVED) { showNotification("预留位已满 (最多3张)", 'error'); return; }
             saveState();
-            const newPlayer = { ...currentPlayer, reserved: [...currentPlayer.reserved, card] };
+            // FIX: Deep copy gems to avoid mutating state captured by saveState closure/execution timing
+            const newPlayer = { 
+                ...currentPlayer, 
+                gems: { ...currentPlayer.gems }, 
+                reserved: [...currentPlayer.reserved, card] 
+            };
             const newBank = { ...bank };
             if (newBank.gold > 0) {
               if (totalGems(newPlayer) < MAX_GEMS) { newBank.gold--; newPlayer.gems.gold++; addLog(`${newPlayer.name} 预留+心灵宝石`); }
