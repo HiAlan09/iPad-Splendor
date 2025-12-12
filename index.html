@@ -9,10 +9,11 @@
     
     <title>璀璨宝石 (Splendor)</title>
     
+    <!-- 核心库：已替换为更稳定的 Cloudflare CDN，解决 iPad 加载白屏问题 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <style>
         html, body {
@@ -55,7 +56,10 @@
     </style>
 </head>
 <body class="bg-[#0f172a] text-slate-200">
-    <div id="root"></div>
+    <div id="root" class="flex flex-col items-center justify-center text-slate-500 gap-4">
+        <div class="animate-pulse text-xl font-bold text-slate-400">正在初始化游戏资源...</div>
+        <div class="text-sm">如果长时间未加载，请检查网络连接</div>
+    </div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
