@@ -2,20 +2,28 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <!-- 視口設置：禁止縮放，適配 iPad -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA 全屏設置 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Splendor">
     
     <title>璀璨宝石 (Splendor)</title>
     
-    <!-- 核心库：已替换为更稳定的 Cloudflare CDN，解决 iPad 加载白屏问题 -->
+    <!-- 1. 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- 2. 引入 React 和 ReactDOM (使用 unpkg 官方源，通常更穩定) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 3. 引入 Babel (用於解析 JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
+        /* 基礎樣式 */
         html, body {
             height: 100%;
             width: 100%;
@@ -33,6 +41,7 @@
             width: 100%;
             display: flex;
             flex-direction: column;
+            /* 適配安全區域（劉海屏/底部橫條） */
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
         }
@@ -40,31 +49,156 @@
         .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
         .prevent-squish { flex-shrink: 0; }
 
-        /* 卡牌纹理 */
+        /* 卡牌紋理 */
         .pattern-stripes { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 10px, transparent 10px, transparent 20px); }
         .pattern-dots { background-image: radial-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1.5px); background-size: 15px 15px; }
         .pattern-grid { background-image: linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 20px 20px; }
         .pattern-checkers { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.08) 75%, rgba(255,255,255,0.08)), repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.08) 75%, rgba(255,255,255,0.08)); background-position: 0 0, 10px 10px; background-size: 20px 20px; }
         .pattern-radial-dark { background-image: radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, transparent 70%); }
 
-        /* 文字描边效果 */
+        /* 文字描邊效果 (Webkit專用) */
         .text-stroke-black {
-            -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
+            -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.8);
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             paint-order: stroke fill;
+            color: white !important; /* 強制白色 */
+        }
+        
+        /* 錯誤日誌樣式 */
+        #error-log {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); color: #ff5555; z-index: 9999;
+            padding: 20px; display: none; overflow: auto; font-family: monospace;
+            white-space: pre-wrap; pointer-events: auto;
         }
     </style>
 </head>
 <body class="bg-[#0f172a] text-slate-200">
-    <div id="root" class="flex flex-col items-center justify-center text-slate-500 gap-4">
-        <div class="animate-pulse text-xl font-bold text-slate-400">正在初始化游戏资源...</div>
-        <div class="text-sm">如果长时间未加载，请检查网络连接</div>
+    <!-- 錯誤顯示區 -->
+    <div id="error-log"></div>
+    
+    <!-- 載入提示 -->
+    <div id="loading" class="fixed inset-0 flex flex-col items-center justify-center text-slate-500 gap-4 pointer-events-none">
+        <div class="animate-pulse text-2xl font-bold text-slate-300">正在加載資源...</div>
+        <div class="text-sm">如果長時間停留在此，請檢查網絡連接</div>
     </div>
 
+    <div id="root"></div>
+
+    <!-- 錯誤捕獲腳本 (最先執行) -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            var log = document.getElementById('error-log');
+            log.style.display = 'block';
+            log.innerHTML += "錯誤: " + message + "\n源: " + source + "\n行: " + lineno + "\n\n";
+        };
+        
+        // 檢查 React 是否加載
+        window.onload = function() {
+            setTimeout(function() {
+                if (!window.React || !window.ReactDOM) {
+                    var log = document.getElementById('error-log');
+                    log.style.display = 'block';
+                    log.innerHTML += "【嚴重錯誤】React 庫加載失敗！\n請檢查您的網絡連接，確保 iPad 可以訪問 unpkg.com。\n嘗試切換 WiFi 或使用手機熱點。\n";
+                }
+            }, 3000);
+        };
+    </script>
+
     <script type="text/babel">
+        // 隱藏 Loading
+        document.getElementById('loading').style.display = 'none';
+
         const { useState, useEffect, useRef } = React;
 
-        // --- 图标组件 ---
+        // --- 樣式配置 (優化版) ---
+        const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
+
+        // 分數樣式統一：白色填充 + 黑色描邊
+        const SCORE_STYLE = "text-white text-stroke-black";
+
+        const GEM_STYLES = {
+          emerald: { 
+            tokenGradient: 'bg-emerald-600',
+            tokenBorder: 'border-emerald-400',
+            cardBg: 'bg-emerald-900', 
+            cardBorder: 'border-emerald-500/50',
+            patternClass: 'pattern-dots',
+            accentColor: 'text-emerald-500',
+            shapeFill: 'text-emerald-500/20',
+            costBg: 'bg-emerald-600', 
+            costColor: 'bg-emerald-500',
+            textColor: 'text-emerald-600',
+            iconFill: 'fill-emerald-500 stroke-white stroke-[1.5px]',
+            label: '綠宝石' 
+          },
+          sapphire: { 
+            tokenGradient: 'bg-blue-600',
+            tokenBorder: 'border-blue-400',
+            cardBg: 'bg-blue-900', 
+            cardBorder: 'border-blue-500/50',
+            patternClass: 'pattern-grid',
+            accentColor: 'text-blue-500',
+            shapeFill: 'text-blue-500/20',
+            costBg: 'bg-blue-600',
+            costColor: 'bg-blue-500',
+            textColor: 'text-blue-600',
+            iconFill: 'fill-blue-500 stroke-white stroke-[1.5px]',
+            label: '藍宝石' 
+          },
+          ruby: { 
+            tokenGradient: 'bg-red-600',
+            tokenBorder: 'border-red-400',
+            cardBg: 'bg-rose-900', 
+            cardBorder: 'border-red-500/50',
+            patternClass: 'pattern-stripes',
+            accentColor: 'text-rose-500',
+            shapeFill: 'text-rose-500/20',
+            costBg: 'bg-rose-600',
+            costColor: 'bg-rose-500',
+            textColor: 'text-rose-600',
+            iconFill: 'fill-rose-500 stroke-white stroke-[1.5px]',
+            label: '紅宝石' 
+          },
+          diamond: { 
+            tokenGradient: 'bg-slate-200',
+            tokenBorder: 'border-white',
+            // 優化：白色鑽石卡背景使用淺灰色
+            cardBg: 'bg-gray-300', 
+            cardBorder: 'border-white/80',
+            patternClass: 'pattern-radial-dark',
+            accentColor: 'text-slate-500',
+            shapeFill: 'text-black/10',
+            // 優化：底部費用欄顏色與卡面統一，使用稍深的灰色，不分層
+            costBg: 'bg-gray-400', 
+            costColor: 'bg-slate-200',
+            textColor: 'text-slate-600',
+            iconFill: 'fill-white stroke-black stroke-[1.5px]',
+            label: '鑽石' 
+          },
+          onyx: { 
+            tokenGradient: 'bg-slate-700',
+            tokenBorder: 'border-slate-500',
+            cardBg: 'bg-slate-900', 
+            cardBorder: 'border-slate-600/50',
+            patternClass: 'pattern-checkers',
+            accentColor: 'text-slate-400',
+            shapeFill: 'text-white/10',
+            costBg: 'bg-slate-800', // 深色
+            costColor: 'bg-slate-600',
+            textColor: 'text-stone-800',
+            iconFill: 'fill-slate-800 stroke-white stroke-[1.5px]',
+            label: '黑曜石' 
+          },
+          gold: { 
+            tokenGradient: 'bg-yellow-500',
+            tokenBorder: 'border-yellow-200',
+            textColor: 'text-amber-600',
+            label: '黃金' 
+          },
+        };
+
+        // --- 圖標組件 ---
         const IconBase = ({ children, size = 24, className = "", ...props }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
         );
@@ -85,97 +219,6 @@
         const Triangle = (p) => <IconBase {...p}><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3l-8-14z"/></IconBase>;
         const Sparkles = (p) => <IconBase {...p}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></IconBase>;
 
-        // --- 样式配置 ---
-        const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
-
-        const GEM_STYLES = {
-          emerald: { 
-            tokenGradient: 'bg-emerald-600',
-            tokenBorder: 'border-emerald-400',
-            cardBg: 'bg-emerald-900', 
-            cardBorder: 'border-emerald-500/50',
-            patternClass: 'pattern-dots',
-            accentColor: 'text-emerald-500',
-            shapeFill: 'text-emerald-500/20',
-            costBg: 'bg-emerald-700/80',
-            costColor: 'bg-emerald-500',
-            textColor: 'text-emerald-600',
-            // 统一：所有卡牌分数均为白色 + 黑色描边
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-emerald-500 stroke-white stroke-[1.5px]',
-            label: '绿宝石' 
-          },
-          sapphire: { 
-            tokenGradient: 'bg-blue-600',
-            tokenBorder: 'border-blue-400',
-            cardBg: 'bg-blue-900', 
-            cardBorder: 'border-blue-500/50',
-            patternClass: 'pattern-grid',
-            accentColor: 'text-blue-500',
-            shapeFill: 'text-blue-500/20',
-            costBg: 'bg-blue-700/80',
-            costColor: 'bg-blue-500',
-            textColor: 'text-blue-600',
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-blue-500 stroke-white stroke-[1.5px]',
-            label: '蓝宝石' 
-          },
-          ruby: { 
-            tokenGradient: 'bg-red-600',
-            tokenBorder: 'border-red-400',
-            cardBg: 'bg-rose-900', 
-            cardBorder: 'border-red-500/50',
-            patternClass: 'pattern-stripes',
-            accentColor: 'text-rose-500',
-            shapeFill: 'text-rose-500/20',
-            costBg: 'bg-rose-700/80',
-            costColor: 'bg-rose-500',
-            textColor: 'text-rose-600',
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-rose-500 stroke-white stroke-[1.5px]',
-            label: '红宝石' 
-          },
-          diamond: { 
-            tokenGradient: 'bg-slate-200',
-            tokenBorder: 'border-white',
-            // 调整钻石卡背景，使用统一的色调
-            cardBg: 'bg-slate-200', 
-            cardBorder: 'border-white/80',
-            patternClass: 'pattern-radial-dark',
-            accentColor: 'text-slate-500',
-            shapeFill: 'text-black/10',
-            // 底部背景调整为与卡牌主色更接近的深色，消除分层感
-            costBg: 'bg-slate-400/90',
-            costColor: 'bg-slate-200',
-            textColor: 'text-slate-600',
-            // 统一分数颜色
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-white stroke-black stroke-[1.5px]',
-            label: '钻石' 
-          },
-          onyx: { 
-            tokenGradient: 'bg-slate-700',
-            tokenBorder: 'border-slate-500',
-            cardBg: 'bg-slate-900', 
-            cardBorder: 'border-slate-600/50',
-            patternClass: 'pattern-checkers',
-            accentColor: 'text-slate-400',
-            shapeFill: 'text-white/10',
-            costBg: 'bg-slate-800/90',
-            costColor: 'bg-slate-600',
-            textColor: 'text-stone-800',
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-slate-800 stroke-white stroke-[1.5px]',
-            label: '黑曜石' 
-          },
-          gold: { 
-            tokenGradient: 'bg-yellow-500',
-            tokenBorder: 'border-yellow-200',
-            textColor: 'text-amber-600',
-            label: '黄金' 
-          },
-        };
-
         const LEVEL_CONFIG = {
           1: { dotColor: 'text-emerald-400', borderColor: 'border-emerald-500/30', bg: 'bg-emerald-900/20' },
           2: { dotColor: 'text-yellow-400', borderColor: 'border-yellow-500/30', bg: 'bg-yellow-900/20' },
@@ -186,7 +229,7 @@
         const MAX_GEMS = 10;
         const MAX_RESERVED = 3;
 
-        // --- 洗牌与生成算法 ---
+        // --- 洗牌與生成算法 ---
         const shuffleArray = (array) => {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -252,7 +295,7 @@
           return shuffleArray(nobles).slice(0, 3);
         };
 
-        // --- 子组件 ---
+        // --- 子組件 ---
         const GemIconSVG = ({ type, size = "100%", className = "" }) => {
           if (type === 'diamond') return <Diamond size={size} className={className} strokeWidth={2} />;
           if (type === 'emerald') return <Hexagon size={size} className={className} strokeWidth={2} />;
@@ -314,14 +357,16 @@
               </div>
               
               <div className={`flex justify-between items-start p-2 lg:p-3 z-10 relative`}>
-                <div className={`text-3xl lg:text-4xl xl:text-5xl font-serif font-black ${style.pointColor} drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] leading-none mt-0.5 lg:mt-1 ml-0.5 lg:ml-1 filter`}>{card.points > 0 ? card.points : ''}</div>
+                {/* 統一使用白色字體+黑色描邊 */}
+                <div className={`text-3xl lg:text-4xl xl:text-5xl font-serif font-black ${SCORE_STYLE} leading-none mt-0.5 lg:mt-1 ml-0.5 lg:ml-1 filter`}>{card.points > 0 ? card.points : ''}</div>
+                
                 <div className={`w-7 h-7 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-full flex items-center justify-center shadow-xl border-2 bg-white border-white`}>
                    <GemIconSVG type={card.bonus} size={20} className={`${style.iconFill} lg:scale-110`} />
                 </div>
               </div>
 
               {!isReservedView && (
-                <button onClick={(e) => { e.stopPropagation(); onReserve(card); }} className="absolute bottom-10 lg:bottom-12 xl:bottom-14 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-yellow-500 hover:bg-yellow-400 text-yellow-950 text-[10px] lg:text-xs font-bold py-1 px-3 lg:px-4 rounded-full shadow-[0_4px_10px_rgba(0,0,0,0.5)] transition-all z-20 flex items-center gap-1 transform hover:scale-105 border border-yellow-300 whitespace-nowrap active:scale-95"><Lock size={10} /> <span className="hidden lg:inline">预留</span></button>
+                <button onClick={(e) => { e.stopPropagation(); onReserve(card); }} className="absolute bottom-10 lg:bottom-12 xl:bottom-14 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-yellow-500 hover:bg-yellow-400 text-yellow-950 text-[10px] lg:text-xs font-bold py-1 px-3 lg:px-4 rounded-full shadow-[0_4px_10px_rgba(0,0,0,0.5)] transition-all z-20 flex items-center gap-1 transform hover:scale-105 border border-yellow-300 whitespace-nowrap active:scale-95"><Lock size={10} /> <span className="hidden lg:inline">預留</span></button>
               )}
 
               <div className={`mt-auto p-1 lg:p-1.5 flex flex-col gap-1 backdrop-blur-md border-t border-white/10 z-10 rounded-b-lg ${style.costBg}`}>
@@ -358,7 +403,7 @@
            </div>
         );
 
-        // --- 主游戏组件 ---
+        // --- 主遊戲組件 ---
         function SplendorGame() {
           const [gameState, setGameState] = useState('setup'); 
           const [deck, setDeck] = useState(null);
@@ -384,7 +429,7 @@
               { id: 0, name: "玩家 1", gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] },
               { id: 1, name: "玩家 2", gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] },
             ]);
-            setTurn(0); setLogs(["游戏开始！"]); setSelectedGems([]); setWinner(null); setGameState('playing');
+            setTurn(0); setLogs(["遊戲開始！"]); setSelectedGems([]); setWinner(null); setGameState('playing');
           };
 
           const addLog = (msg) => setLogs(prev => [msg, ...prev].slice(0, 8));
@@ -422,10 +467,10 @@
             if (isDouble || selectedGems.length === 3) return;
             const countInSelection = selectedGems.filter(g => g === type).length;
             if (countInSelection === 1) {
-              if (bank[type] < 4) { addLog(`不足4个，无法拿取2个`); return; }
-              if (selectedGems.length > 1) { addLog("异色时无法拿同色"); return; }
+              if (bank[type] < 4) { addLog(`不足4個，無法拿取2個`); return; }
+              if (selectedGems.length > 1) { addLog("異色時無法拿同色"); return; }
             }
-            if (selectedGems.length === 2 && selectedGems[0] !== selectedGems[1] && selectedGems.includes(type)) { addLog("不能重复拿取"); return; }
+            if (selectedGems.length === 2 && selectedGems[0] !== selectedGems[1] && selectedGems.includes(type)) { addLog("不能重複拿取"); return; }
             setSelectedGems([...selectedGems, type]);
           };
 
@@ -450,17 +495,17 @@
             newPlayer.score += card.points;
             if (fromReserved) newPlayer.reserved = newPlayer.reserved.filter(c => c.id !== card.id);
             else replaceCardOnBoard(card);
-            setBank(newBank); addLog(`${newPlayer.name} 购买 (+${card.points})`); checkNoblesVisit(newPlayer);
+            setBank(newBank); addLog(`${newPlayer.name} 購買 (+${card.points})`); checkNoblesVisit(newPlayer);
           };
 
           const handleReserveCard = (card) => {
-            if (currentPlayer.reserved.length >= MAX_RESERVED) { addLog("预留位已满"); return; }
+            if (currentPlayer.reserved.length >= MAX_RESERVED) { addLog("預留位已滿"); return; }
             const newPlayer = { ...currentPlayer, reserved: [...currentPlayer.reserved, card] };
             const newBank = { ...bank };
             if (newBank.gold > 0) {
-              if (totalGems(newPlayer) < MAX_GEMS) { newBank.gold--; newPlayer.gems.gold++; addLog(`${newPlayer.name} 预留+黄金`); }
-              else addLog(`${newPlayer.name} 预留 (满)`);
-            } else addLog(`${newPlayer.name} 预留 (无黄金)`);
+              if (totalGems(newPlayer) < MAX_GEMS) { newBank.gold--; newPlayer.gems.gold++; addLog(`${newPlayer.name} 預留+黄金`); }
+              else addLog(`${newPlayer.name} 預留 (滿)`);
+            } else addLog(`${newPlayer.name} 預留 (無黄金)`);
             replaceCardOnBoard(card); setBank(newBank); endTurn(newPlayer);
           };
 
@@ -482,7 +527,7 @@
               let eligible = true;
               for (const [type, req] of Object.entries(noble.req)) { if (player.bonuses[type] < req) { eligible = false; break; } }
               if (eligible) {
-                addLog(`🎉 贵族来访！+${noble.points}分`);
+                addLog(`🎉 貴族來訪！+${noble.points}分`);
                 newPlayer.score += noble.points;
                 playerNobles.push(noble);
                 newNobles.splice(i, 1);
@@ -654,9 +699,9 @@
                 <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
                   <div className="bg-slate-900 border-2 border-amber-500 rounded-2xl p-6 xl:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(245,158,11,0.2)]">
                     <Trophy size={60} className="text-amber-500 mx-auto mb-4" />
-                    <h2 className="text-3xl xl:text-5xl font-black text-white mb-2">{winner?.name} 获胜！</h2>
-                    <div className="text-xl xl:text-2xl text-amber-400 mb-6 font-bold">总得分: {winner?.score}</div>
-                    <button onClick={initGame} className="w-full py-3 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold rounded-xl text-lg active:scale-95 transition-transform">再来一局</button>
+                    <h2 className="text-3xl xl:text-5xl font-black text-white mb-2">{winner?.name} 獲勝！</h2>
+                    <div className="text-xl xl:text-2xl text-amber-400 mb-6 font-bold">總得分: {winner?.score}</div>
+                    <button onClick={initGame} className="w-full py-3 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold rounded-xl text-lg active:scale-95 transition-transform">再來一局</button>
                   </div>
                 </div>
               )}
