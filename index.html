@@ -2,715 +2,840 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 視口設置：禁止縮放，適配 iPad -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- PWA 全屏設置 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Splendor">
+    <title>璀璨宝石 (离线版)</title>
     
-    <title>璀璨宝石 (Splendor)</title>
-    
-    <!-- 1. 引入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- 2. 引入 React 和 ReactDOM (使用 unpkg 官方源，通常更穩定) -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- 3. 引入 Babel (用於解析 JSX) -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <style>
-        /* 基礎樣式 */
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            background-color: #0f172a;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-            touch-action: none;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        /* --- 核心基础样式 (替代 Tailwind) --- */
+        :root {
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --color-emerald: #10b981;
+            --color-sapphire: #3b82f6;
+            --color-ruby: #ef4444;
+            --color-diamond: #f8fafc;
+            --color-onyx: #334155;
+            --color-gold: #eab308;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        
-        #root {
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            /* 適配安全區域（劉海屏/底部橫條） */
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            height: 100vh; width: 100vw;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            overflow: hidden;
+            display: flex; flex-direction: column;
+            user-select: none; -webkit-user-select: none;
+            touch-action: none;
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
         }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
-        .prevent-squish { flex-shrink: 0; }
+        /* 布局工具类 */
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-start { justify-content: flex-start; }
+        .justify-around { justify-content: space-around; }
+        .flex-1 { flex: 1; }
+        .w-full { width: 100%; }
+        .h-full { height: 100%; }
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .hidden { display: none !important; }
+        .gap-1 { gap: 4px; }
+        .gap-2 { gap: 8px; }
+        .gap-3 { gap: 12px; }
+        .p-1 { padding: 4px; }
+        .p-2 { padding: 8px; }
+        .p-3 { padding: 12px; }
+        
+        /* 滚动条隐藏 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 卡牌紋理 */
-        .pattern-stripes { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 10px, transparent 10px, transparent 20px); }
-        .pattern-dots { background-image: radial-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1.5px); background-size: 15px 15px; }
-        .pattern-grid { background-image: linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 20px 20px; }
-        .pattern-checkers { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.08) 75%, rgba(255,255,255,0.08)), repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.08) 75%, rgba(255,255,255,0.08)); background-position: 0 0, 10px 10px; background-size: 20px 20px; }
-        .pattern-radial-dark { background-image: radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, transparent 70%); }
+        /* --- 游戏特定样式 --- */
+        
+        /* 顶部导航 */
+        .header {
+            height: 48px;
+            background-color: #020617;
+            border-bottom: 1px solid #334155;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; flex-shrink: 0; z-index: 50;
+        }
+        .btn-reset {
+            background: #1e293b; color: #cbd5e1; border: 1px solid #334155;
+            padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: bold;
+            display: flex; align-items: center; gap: 4px; cursor: pointer;
+        }
+        .btn-reset:active { background: #334155; color: white; }
 
-        /* 文字描邊效果 (Webkit專用) */
-        .text-stroke-black {
-            -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.8);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            paint-order: stroke fill;
-            color: white !important; /* 強制白色 */
+        /* 主区域布局 */
+        .main-area { flex: 1; display: flex; overflow: hidden; position: relative; }
+        .bg-pattern {
+            position: absolute; inset: 0; opacity: 0.15; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* 侧边栏 (日志 & 银行) */
+        .sidebar {
+            width: 160px; background: #0f172a; border-right: 1px solid #334155;
+            display: flex; flex-direction: column; z-index: 10;
+        }
+        .sidebar-right { border-right: none; border-left: 1px solid #334155; width: 140px; }
+        .section-title { font-size: 10px; font-weight: bold; color: #64748b; text-transform: uppercase; text-align: center; margin-bottom: 4px; letter-spacing: 1px; }
+
+        /* 中间牌桌 */
+        .board-container { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 10px; overflow: hidden; }
+        .board-scaler { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; transform-origin: top center; transition: transform 0.3s; }
+        
+        /* 贵族区 */
+        .noble-area {
+            background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px; padding: 8px; margin-bottom: 8px;
+            display: flex; flex-direction: column; align-items: center; width: 95%; flex-shrink: 0;
         }
         
-        /* 錯誤日誌樣式 */
-        #error-log {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); color: #ff5555; z-index: 9999;
-            padding: 20px; display: none; overflow: auto; font-family: monospace;
-            white-space: pre-wrap; pointer-events: auto;
+        /* 贵族卡片 */
+        .noble-tile {
+            width: 90px; height: 120px; flex-shrink: 0;
+            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+            border: 3px solid #b45309; border-radius: 8px;
+            position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
+        .noble-points { font-size: 28px; font-weight: 900; color: #451a03; line-height: 1; }
+        .noble-req-row { display: flex; align-items: center; background: rgba(255,255,255,0.7); border-radius: 4px; padding: 2px 4px; margin-top: 2px; border: 1px solid #fde68a; }
+        .noble-req-val { font-size: 12px; font-weight: bold; color: #451a03; margin-left: 4px; }
+
+        /* 卡牌行 */
+        .card-row { display: flex; gap: 12px; margin-bottom: 8px; justify-content: center; height: 160px; width: 100%; flex-shrink: 0; }
+        
+        /* 牌堆 */
+        .deck-stack {
+            width: 110px; height: 100%; border-radius: 10px;
+            background: #1e293b; border: 2px solid;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        /* 发展卡 */
+        .card {
+            width: 110px; height: 100%; border-radius: 10px;
+            position: relative; overflow: hidden; cursor: pointer;
+            border: 2px solid; transition: transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+            background-color: #334155; /* Default */
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .card:active { transform: scale(0.95); }
+        .card.can-buy { box-shadow: 0 0 0 3px #4ade80, 0 10px 15px rgba(0,0,0,0.5); transform: translateY(-4px); z-index: 10; border-color: #4ade80; }
+        
+        /* 卡牌纹理 */
+        .pat-dots { background-image: radial-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1.5px); background-size: 15px 15px; }
+        .pat-grid { background-image: linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 20px 20px; }
+        .pat-lines { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 10px, transparent 10px, transparent 20px); }
+        .pat-check { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.08) 75%, rgba(255,255,255,0.08)), repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.08) 75%, rgba(255,255,255,0.08)); background-position: 0 0, 10px 10px; background-size: 20px 20px; }
+        .pat-radial { background-image: radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, transparent 70%); }
+
+        /* 卡牌内容 */
+        .card-top { padding: 6px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 2; position: relative; }
+        .card-points { font-family: "Times New Roman", serif; font-size: 32px; font-weight: 900; line-height: 0.8; color: white; -webkit-text-stroke: 1.5px black; text-shadow: 0 2px 2px rgba(0,0,0,0.5); }
+        .card-gem-icon { width: 32px; height: 32px; border-radius: 50%; background: white; border: 2px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .card-center-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.15; width: 80px; height: 80px; pointer-events: none; }
+        
+        .card-cost-bar { 
+            padding: 4px; display: flex; gap: 4px; justify-content: center; align-items: flex-end; 
+            border-top: 1px solid rgba(255,255,255,0.2);
+            /* 关键：颜色背景在JS中动态设置 */
+        }
+        .cost-bubble {
+            width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: bold; color: white; text-shadow: 0 1px 2px black;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .cost-bubble.diamond-cost { color: #1e293b; text-shadow: none; }
+
+        /* 预留按钮 */
+        .btn-reserve {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: #eab308; color: #422006; font-size: 10px; font-weight: bold;
+            padding: 4px 10px; border-radius: 99px; border: 1px solid #fde047;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4); z-index: 20; opacity: 0.9;
+        }
+
+        /* 银行按钮 */
+        .bank-btn {
+            width: 100%; height: 60px; margin-bottom: 6px; border-radius: 10px;
+            background: rgba(30, 41, 59, 0.5); border: 1px solid #334155;
+            display: flex; align-items: center; justify-content: center; position: relative;
+            transition: all 0.1s;
+        }
+        .bank-btn:active { transform: scale(0.95); background: rgba(30, 41, 59, 0.8); }
+        .bank-btn.selected { border-color: #10b981; background: rgba(16, 185, 129, 0.2); box-shadow: 0 0 0 1px #10b981; }
+        .bank-btn:disabled { opacity: 0.3; filter: grayscale(1); }
+        .bank-count { position: absolute; top: 4px; right: 8px; font-size: 12px; font-weight: bold; color: #94a3b8; }
+        .bank-label { font-size: 10px; color: #64748b; font-weight: bold; position: absolute; bottom: 4px; }
+        .token-icon { width: 32px; height: 32px; }
+
+        /* 底部玩家 */
+        .footer { height: 160px; background: #020617; border-top: 1px solid #1e293b; display: flex; flex-shrink: 0; z-index: 50; }
+        .player-panel { flex: 1; border-right: 1px solid #1e293b; display: flex; position: relative; }
+        .player-panel.active { background: #0f172a; }
+        .active-bar { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #f59e0b, transparent); box-shadow: 0 0 10px #f59e0b; }
+        
+        /* 玩家内部布局 */
+        .p-info { width: 90px; padding: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid #1e293b; }
+        .p-avatar { width: 40px; height: 40px; border-radius: 50%; background: #334155; display: flex; align-items: center; justify-content: center; border: 2px solid #475569; margin-bottom: 4px; }
+        .active .p-avatar { border-color: #f59e0b; background: #78350f; color: white; }
+        .p-score { font-size: 20px; font-weight: 900; color: #f59e0b; }
+        
+        .p-nobles { width: 40px; background: rgba(0,0,0,0.2); border-right: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; padding-top: 4px; overflow-y: auto; }
+        .mini-noble { width: 30px; height: 30px; background: #fcd34d; border: 1px solid #b45309; border-radius: 4px; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #451a03; flex-shrink: 0; }
+
+        .p-resources { flex: 1; display: flex; flex-direction: column; }
+        .res-row { flex: 1; display: flex; align-items: center; justify-content: space-around; border-bottom: 1px solid #1e293b; }
+        .res-item { display: flex; flex-direction: column; align-items: center; width: 20px; }
+        .mini-token { width: 20px; height: 20px; }
+        .mini-card { width: 24px; height: 32px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: white; text-shadow: 0 1px 2px black; }
+
+        .p-reserved { width: 80px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; padding: 4px; align-items: center; }
+        .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; height: 100%; }
+        .res-slot { border: 1px dashed #475569; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .res-card { width: 100%; height: 100%; border-radius: 4px; border: 1px solid #94a3b8; background: #334155; position: relative; display: flex; align-items: center; justify-content: center; }
+        .res-card.buyable { border-color: #4ade80; box-shadow: 0 0 5px #4ade80; cursor: pointer; }
+
+        /* SVG 图标定义 */
+        .icon { width: 100%; height: 100%; }
+        .fill-white { fill: white; }
+        .fill-black { fill: #1e293b; }
+        .stroke-white { stroke: white; stroke-width: 1.5; }
+        .stroke-black { stroke: #1e293b; stroke-width: 1.5; }
+        .fill-emerald { fill: #10b981; }
+        .fill-sapphire { fill: #3b82f6; }
+        .fill-ruby { fill: #ef4444; }
+        .fill-onyx { fill: #334155; } /* 黑曜石图标 */
+        
+        /* 胜利弹窗 */
+        #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .modal { background: #1e293b; border: 2px solid #f59e0b; padding: 30px; border-radius: 16px; text-align: center; width: 300px; }
+        .modal h2 { font-size: 32px; color: white; margin: 10px 0; }
+        .modal p { color: #f59e0b; font-size: 20px; font-weight: bold; }
+        .modal button { margin-top: 20px; background: #d97706; color: white; border: none; padding: 10px 24px; font-size: 18px; border-radius: 8px; width: 100%; }
     </style>
 </head>
-<body class="bg-[#0f172a] text-slate-200">
-    <!-- 錯誤顯示區 -->
-    <div id="error-log"></div>
+<body>
     
-    <!-- 載入提示 -->
-    <div id="loading" class="fixed inset-0 flex flex-col items-center justify-center text-slate-500 gap-4 pointer-events-none">
-        <div class="animate-pulse text-2xl font-bold text-slate-300">正在加載資源...</div>
-        <div class="text-sm">如果長時間停留在此，請檢查網絡連接</div>
+    <!-- 游戏 UI 结构 -->
+    <div id="game-root">
+        <!-- 头部 -->
+        <div class="header">
+            <div style="color: #f59e0b; font-weight: 900; font-size: 20px; display: flex; align-items: center; gap: 8px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-3-4 3-6-7zm5 16h10"/></svg>
+                SPLENDOR
+            </div>
+            <div id="turn-indicator" style="font-size: 12px; color: #94a3b8;">
+                <span id="turn-p1" style="color: #f59e0b;">● 玩家 1</span> | <span id="turn-p2">玩家 2</span>
+            </div>
+            <div class="btn-reset" onclick="initGame()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                重新开始
+            </div>
+        </div>
+
+        <div class="main-area">
+            <div class="bg-pattern"></div>
+            
+            <!-- 左侧日志 -->
+            <div class="sidebar" id="log-container">
+                <div class="p-2 border-b border-slate-700">
+                    <div class="section-title">游戏日志</div>
+                </div>
+                <div id="logs" class="p-2 no-scrollbar" style="flex:1; overflow-y: auto; font-size: 10px; color: #94a3b8; line-height: 1.4;"></div>
+            </div>
+
+            <!-- 中间牌桌 -->
+            <div class="board-container">
+                <div class="board-scaler" id="board-scaler">
+                    <!-- 贵族区 -->
+                    <div class="noble-area" id="nobles-area"></div>
+                    
+                    <!-- 卡牌区 (Level 3, 2, 1) -->
+                    <div id="board-rows" style="width: 95%; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px;"></div>
+                </div>
+            </div>
+
+            <!-- 右侧银行 -->
+            <div class="sidebar sidebar-right no-scrollbar" style="overflow-y: auto;">
+                <div class="p-2"><div class="section-title">宝石银行</div></div>
+                <div id="bank-area" class="p-2 pt-0"></div>
+                <div class="p-2">
+                    <button id="btn-take" class="btn-reset" style="width:100%; justify-content:center; padding: 10px; background: #059669; color: white; border:none; display:none;" onclick="confirmTakeGems()">确认拿取</button>
+                    <button id="btn-cancel" class="btn-reset" style="width:100%; justify-content:center; margin-top:5px; border:none; background:transparent; display:none;" onclick="cancelSelection()">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部玩家 -->
+        <div class="footer" id="players-area"></div>
     </div>
 
-    <div id="root"></div>
+    <!-- 胜利弹窗 -->
+    <div id="modal-overlay">
+        <div class="modal">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" style="margin:0 auto;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            <h2 id="winner-name">玩家 1 获胜!</h2>
+            <p id="winner-score">总分: 15</p>
+            <button onclick="initGame()">再来一局</button>
+        </div>
+    </div>
 
-    <!-- 錯誤捕獲腳本 (最先執行) -->
+    <!-- 游戏逻辑 (纯原生JS) -->
     <script>
-        window.onerror = function(message, source, lineno, colno, error) {
-            var log = document.getElementById('error-log');
-            log.style.display = 'block';
-            log.innerHTML += "錯誤: " + message + "\n源: " + source + "\n行: " + lineno + "\n\n";
-        };
-        
-        // 檢查 React 是否加載
-        window.onload = function() {
-            setTimeout(function() {
-                if (!window.React || !window.ReactDOM) {
-                    var log = document.getElementById('error-log');
-                    log.style.display = 'block';
-                    log.innerHTML += "【嚴重錯誤】React 庫加載失敗！\n請檢查您的網絡連接，確保 iPad 可以訪問 unpkg.com。\n嘗試切換 WiFi 或使用手機熱點。\n";
-                }
-            }, 3000);
-        };
-    </script>
-
-    <script type="text/babel">
-        // 隱藏 Loading
-        document.getElementById('loading').style.display = 'none';
-
-        const { useState, useEffect, useRef } = React;
-
-        // --- 樣式配置 (優化版) ---
+        // --- 常量配置 ---
         const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
-
-        // 分數樣式統一：白色填充 + 黑色描邊
-        const SCORE_STYLE = "text-white text-stroke-black";
-
-        const GEM_STYLES = {
-          emerald: { 
-            tokenGradient: 'bg-emerald-600',
-            tokenBorder: 'border-emerald-400',
-            cardBg: 'bg-emerald-900', 
-            cardBorder: 'border-emerald-500/50',
-            patternClass: 'pattern-dots',
-            accentColor: 'text-emerald-500',
-            shapeFill: 'text-emerald-500/20',
-            costBg: 'bg-emerald-600', 
-            costColor: 'bg-emerald-500',
-            textColor: 'text-emerald-600',
-            iconFill: 'fill-emerald-500 stroke-white stroke-[1.5px]',
-            label: '綠宝石' 
-          },
-          sapphire: { 
-            tokenGradient: 'bg-blue-600',
-            tokenBorder: 'border-blue-400',
-            cardBg: 'bg-blue-900', 
-            cardBorder: 'border-blue-500/50',
-            patternClass: 'pattern-grid',
-            accentColor: 'text-blue-500',
-            shapeFill: 'text-blue-500/20',
-            costBg: 'bg-blue-600',
-            costColor: 'bg-blue-500',
-            textColor: 'text-blue-600',
-            iconFill: 'fill-blue-500 stroke-white stroke-[1.5px]',
-            label: '藍宝石' 
-          },
-          ruby: { 
-            tokenGradient: 'bg-red-600',
-            tokenBorder: 'border-red-400',
-            cardBg: 'bg-rose-900', 
-            cardBorder: 'border-red-500/50',
-            patternClass: 'pattern-stripes',
-            accentColor: 'text-rose-500',
-            shapeFill: 'text-rose-500/20',
-            costBg: 'bg-rose-600',
-            costColor: 'bg-rose-500',
-            textColor: 'text-rose-600',
-            iconFill: 'fill-rose-500 stroke-white stroke-[1.5px]',
-            label: '紅宝石' 
-          },
-          diamond: { 
-            tokenGradient: 'bg-slate-200',
-            tokenBorder: 'border-white',
-            // 優化：白色鑽石卡背景使用淺灰色
-            cardBg: 'bg-gray-300', 
-            cardBorder: 'border-white/80',
-            patternClass: 'pattern-radial-dark',
-            accentColor: 'text-slate-500',
-            shapeFill: 'text-black/10',
-            // 優化：底部費用欄顏色與卡面統一，使用稍深的灰色，不分層
-            costBg: 'bg-gray-400', 
-            costColor: 'bg-slate-200',
-            textColor: 'text-slate-600',
-            iconFill: 'fill-white stroke-black stroke-[1.5px]',
-            label: '鑽石' 
-          },
-          onyx: { 
-            tokenGradient: 'bg-slate-700',
-            tokenBorder: 'border-slate-500',
-            cardBg: 'bg-slate-900', 
-            cardBorder: 'border-slate-600/50',
-            patternClass: 'pattern-checkers',
-            accentColor: 'text-slate-400',
-            shapeFill: 'text-white/10',
-            costBg: 'bg-slate-800', // 深色
-            costColor: 'bg-slate-600',
-            textColor: 'text-stone-800',
-            iconFill: 'fill-slate-800 stroke-white stroke-[1.5px]',
-            label: '黑曜石' 
-          },
-          gold: { 
-            tokenGradient: 'bg-yellow-500',
-            tokenBorder: 'border-yellow-200',
-            textColor: 'text-amber-600',
-            label: '黃金' 
-          },
-        };
-
-        // --- 圖標組件 ---
-        const IconBase = ({ children, size = 24, className = "", ...props }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
-        );
-        const Crown = (p) => <IconBase {...p}><path d="m2 4 3 12h14l3-12-6 7-4-3-4 3-6-7zm5 16h10"/></IconBase>;
-        const RotateCcw = (p) => <IconBase {...p}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></IconBase>;
-        const User = (p) => <IconBase {...p}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></IconBase>;
-        const Lock = (p) => <IconBase {...p}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></IconBase>;
-        const ScrollText = (p) => <IconBase {...p}><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></IconBase>;
-        const Wallet = (p) => <IconBase {...p}><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></IconBase>;
-        const Layers = (p) => <IconBase {...p}><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></IconBase>;
-        const Grip = (p) => <IconBase {...p}><circle cx="12" cy="5" r="1"/><circle cx="19" cy="5" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="19" cy="19" r="1"/><circle cx="5" cy="19" r="1"/></IconBase>;
-        const Trophy = (p) => <IconBase {...p}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></IconBase>;
-
-        const Diamond = (p) => <IconBase {...p}><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0l-7.59 7.59Z"/></IconBase>;
-        const Hexagon = (p) => <IconBase {...p}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></IconBase>;
-        const Square = (p) => <IconBase {...p}><rect width="18" height="18" x="3" y="3" rx="2" /></IconBase>;
-        const Circle = (p) => <IconBase {...p}><circle cx="12" cy="12" r="10" /></IconBase>;
-        const Triangle = (p) => <IconBase {...p}><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3l-8-14z"/></IconBase>;
-        const Sparkles = (p) => <IconBase {...p}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></IconBase>;
-
-        const LEVEL_CONFIG = {
-          1: { dotColor: 'text-emerald-400', borderColor: 'border-emerald-500/30', bg: 'bg-emerald-900/20' },
-          2: { dotColor: 'text-yellow-400', borderColor: 'border-yellow-500/30', bg: 'bg-yellow-900/20' },
-          3: { dotColor: 'text-blue-400', borderColor: 'border-blue-500/30', bg: 'bg-blue-900/20' },
-        };
-
         const POINTS_TO_WIN = 15;
         const MAX_GEMS = 10;
-        const MAX_RESERVED = 3;
-
-        // --- 洗牌與生成算法 ---
-        const shuffleArray = (array) => {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+        
+        // 样式定义
+        const STYLES = {
+            emerald: { bg: '#064e3b', light: '#10b981', border: '#047857', costBg: '#059669', iconColor: '#10b981', label: '绿', pat: 'pat-dots' },
+            sapphire: { bg: '#1e3a8a', light: '#3b82f6', border: '#1d4ed8', costBg: '#2563eb', iconColor: '#3b82f6', label: '蓝', pat: 'pat-grid' },
+            ruby:     { bg: '#7f1d1d', light: '#ef4444', border: '#b91c1c', costBg: '#dc2626', iconColor: '#ef4444', label: '红', pat: 'pat-lines' },
+            diamond:  { bg: '#cbd5e1', light: '#f8fafc', border: '#94a3b8', costBg: '#64748b', iconColor: '#ffffff', label: '白', pat: 'pat-radial', isLight: true },
+            onyx:     { bg: '#0f172a', light: '#334155', border: '#1e293b', costBg: '#1e293b', iconColor: '#1e293b', label: '黑', pat: 'pat-check' },
+            gold:     { bg: '#78350f', light: '#eab308', border: '#a16207', label: '金' }
         };
 
-        const generateDeck = () => {
-          const deck = { 1: [], 2: [], 3: [] };
-          const createCard = (id, level, points, gemBonus, cost) => ({ id: `l${level}-${id}`, level, points, bonus: gemBonus, cost });
-          let idCounter = 0;
-          for (let i = 0; i < 40; i++) {
-            const bonus = GEM_TYPES[i % 5];
-            const costType1 = GEM_TYPES[(i + 1) % 5];
-            const costType2 = GEM_TYPES[(i + 2) % 5];
-            const costType3 = GEM_TYPES[(i + 3) % 5];
-            let cost = {};
-            if (i % 3 === 0) { cost[costType1] = 1; cost[costType2] = 1; cost[costType3] = 1; cost[bonus] = 1; }
-            else if (i % 3 === 1) { cost[costType1] = 2; cost[costType2] = 2; }
-            else { cost[costType1] = 3; }
-            deck[1].push(createCard(idCounter++, 1, i % 8 === 0 ? 1 : 0, bonus, cost));
-          }
-          for (let i = 0; i < 30; i++) {
-            const bonus = GEM_TYPES[i % 5];
-            const costType1 = GEM_TYPES[(i + 2) % 5];
-            const costType2 = GEM_TYPES[(i + 3) % 5];
-            let cost = {};
-            const roll = i % 3;
-            if (roll === 0) { cost[costType1] = 3; cost[costType2] = 2; cost[bonus] = 2; }
-            else if (roll === 1) { cost[costType1] = 5; }
-            else { cost[costType1] = 4; cost[costType2] = 2; }
-            deck[2].push(createCard(idCounter++, 2, (i % 3) + 1, bonus, cost));
-          }
-          for (let i = 0; i < 20; i++) {
-            const bonus = GEM_TYPES[i % 5];
-            const costType1 = GEM_TYPES[(i + 1) % 5];
-            const costType2 = GEM_TYPES[(i + 3) % 5];
-            let cost = {};
-            if (i % 2 === 0) { cost[costType1] = 3; cost[costType2] = 3; cost[bonus] = 3; cost[GEM_TYPES[(i+4)%5]] = 3; }
-            else { cost[costType1] = 7; }
-            deck[3].push(createCard(idCounter++, 3, (i % 3) + 3, bonus, cost));
-          }
-          deck[1] = shuffleArray(deck[1]);
-          deck[2] = shuffleArray(deck[2]);
-          deck[3] = shuffleArray(deck[3]);
-          return deck;
+        const LVL_CONFIG = {
+            1: { color: '#10b981', border: '#064e3b' },
+            2: { color: '#eab308', border: '#78350f' },
+            3: { color: '#3b82f6', border: '#1e3a8a' }
         };
 
-        const generateNobles = () => {
-          const nobles = [];
-          for (let i = 0; i < 5; i++) {
-            const type1 = GEM_TYPES[i];
-            const type2 = GEM_TYPES[(i + 1) % 5];
-            nobles.push({ id: `noble-4-${i}`, points: 3, req: { [type1]: 4, [type2]: 4 } });
-          }
-          for (let i = 0; i < 5; i++) {
-            const type1 = GEM_TYPES[i];
-            const type2 = GEM_TYPES[(i + 1) % 5];
-            const type3 = GEM_TYPES[(i + 2) % 5];
-            nobles.push({ id: `noble-3-${i}`, points: 3, req: { [type1]: 3, [type2]: 3, [type3]: 3 } });
-          }
-          return shuffleArray(nobles).slice(0, 3);
+        // --- 游戏状态 ---
+        let state = {
+            deck: {},
+            board: {},
+            nobles: [],
+            bank: {},
+            players: [],
+            turn: 0,
+            selectedGems: [],
+            logs: [],
+            winner: null
         };
 
-        // --- 子組件 ---
-        const GemIconSVG = ({ type, size = "100%", className = "" }) => {
-          if (type === 'diamond') return <Diamond size={size} className={className} strokeWidth={2} />;
-          if (type === 'emerald') return <Hexagon size={size} className={className} strokeWidth={2} />;
-          if (type === 'ruby') return <Square size={size} className={`${className} rotate-45`} strokeWidth={2} />;
-          if (type === 'sapphire') return <Triangle size={size} className={`${className} rotate-180`} strokeWidth={2} />;
-          if (type === 'onyx') return <Circle size={size} className={className} strokeWidth={2} />;
-          if (type === 'gold') return <Sparkles size={size} className={className} strokeWidth={2} />;
-          return null;
+        // --- 图标 SVG 字符串 ---
+        const ICONS = {
+            diamond: `<path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0l-7.59 7.59Z"/>`,
+            emerald: `<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>`,
+            ruby: `<rect width="18" height="18" x="3" y="3" rx="2" transform="rotate(45 12 12)"/>`,
+            sapphire: `<path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3l-8-14z" transform="rotate(180 12 12)"/>`,
+            onyx: `<circle cx="12" cy="12" r="10" />`,
+            gold: `<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>`,
+            crown: `<path d="m2 4 3 12h14l3-12-6 7-4-3-4 3-6-7zm5 16h10"/>`,
+            lock: `<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>`
         };
 
-        const GemToken = ({ type, size = 'md', className = "", count, showCount = true }) => {
-          const sizeClasses = {
-            sm: 'w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 text-[10px] lg:text-xs',
-            md: 'w-7 h-7 lg:w-9 lg:h-9 xl:w-10 xl:h-10 text-xs lg:text-sm',
-            lg: 'w-10 h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16 text-base lg:text-lg',
-            xl: 'w-14 h-14 lg:w-16 lg:h-16 xl:w-20 xl:h-20 text-lg lg:text-xl'
-          };
-          const style = GEM_STYLES[type];
-          return (
-            <div className={`prevent-squish relative rounded-full flex items-center justify-center font-bold border-2 ${style.tokenGradient} shadow-md border-opacity-50 ${style.tokenBorder} ${type === 'diamond' ? 'text-slate-800' : 'text-white'} ${sizeClasses[size]} ${className} transition-transform active:translate-y-1 active:shadow-none shrink-0 shadow-black/30`}> 
-              <div className="absolute top-0 left-0 w-full h-1/2 bg-white/20 rounded-t-full pointer-events-none"></div>
-              <div className="w-[60%] h-[60%] flex items-center justify-center fill-current"><GemIconSVG type={type} /></div>
-              {showCount && count !== undefined && (<span className="absolute -bottom-1 -right-1 bg-black text-white text-[9px] lg:text-[10px] min-w-[16px] h-4 lg:h-5 flex items-center justify-center rounded-full border border-slate-600 shadow-md z-10 px-1">{count}</span>)}
-            </div>
-          );
-        };
-
-        const BonusCardStack = ({ type, count }) => {
-          const style = GEM_STYLES[type];
-          return (
-            <div className={`prevent-squish relative w-8 h-12 lg:w-10 lg:h-14 xl:w-12 xl:h-16 rounded-md border-2 flex items-center justify-center shadow-md transition-transform ${style.cardBg} ${style.cardBorder} group overflow-hidden`}>
-               <div className={`absolute inset-0 opacity-30 ${style.patternClass}`}></div>
-               {count > 1 && <div className={`absolute top-0.5 right-0.5 w-full h-full rounded border border-inherit bg-inherit opacity-80 -z-10`}></div>}
-               {count > 2 && <div className={`absolute top-1 right-1 w-full h-full rounded border border-inherit bg-inherit opacity-60 -z-20`}></div>}
-               <div className={`text-white drop-shadow-md z-10 ${style.accentColor}`}><GemIconSVG type={type} size="60%" className="fill-current" /></div>
-               <div className={`absolute inset-0 flex items-center justify-center z-20`}>
-                 <span className={`font-black ${type === 'diamond' ? 'text-slate-800' : 'text-white'} text-base lg:text-lg xl:text-xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]`}>{count}</span>
-               </div>
-            </div>
-          );
-        };
-
-        const MiniGem = ({ type }) => {
-          const colors = { emerald: 'bg-emerald-500 border-emerald-700', sapphire: 'bg-blue-600 border-blue-800', ruby: 'bg-red-600 border-red-800', diamond: 'bg-slate-200 border-slate-400', onyx: 'bg-slate-800 border-black', gold: 'bg-yellow-400 border-yellow-600' };
-          return <div className={`w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full border ${colors[type]} shadow-sm`}></div>;
-        };
-
-        const Card = ({ card, canBuy, onBuy, onReserve, isReservedView = false }) => {
-          const style = GEM_STYLES[card.bonus];
-          
-          return (
-            <div 
-              className={`prevent-squish relative group flex flex-col justify-between w-24 h-32 lg:w-28 lg:h-40 xl:w-40 xl:h-48 rounded-lg lg:rounded-xl transition-all duration-300 ${style.cardBg} border-2 overflow-hidden shadow-xl ${canBuy ? 'ring-2 lg:ring-4 ring-green-400/80 cursor-pointer -translate-y-1 lg:-translate-y-2 shadow-green-900/50 z-10' : `${style.cardBorder} hover:z-10`}`}
-              onClick={() => canBuy && onBuy(card)}
-            >
-              <div className={`absolute inset-0 opacity-30 pointer-events-none ${style.patternClass}`}></div>
-              <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-transform duration-500 group-hover:scale-110 ${style.shapeFill}`}>
-                  <GemIconSVG type={card.bonus} size={100} className="fill-current" />
-              </div>
-              
-              <div className={`flex justify-between items-start p-2 lg:p-3 z-10 relative`}>
-                {/* 統一使用白色字體+黑色描邊 */}
-                <div className={`text-3xl lg:text-4xl xl:text-5xl font-serif font-black ${SCORE_STYLE} leading-none mt-0.5 lg:mt-1 ml-0.5 lg:ml-1 filter`}>{card.points > 0 ? card.points : ''}</div>
-                
-                <div className={`w-7 h-7 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-full flex items-center justify-center shadow-xl border-2 bg-white border-white`}>
-                   <GemIconSVG type={card.bonus} size={20} className={`${style.iconFill} lg:scale-110`} />
-                </div>
-              </div>
-
-              {!isReservedView && (
-                <button onClick={(e) => { e.stopPropagation(); onReserve(card); }} className="absolute bottom-10 lg:bottom-12 xl:bottom-14 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-yellow-500 hover:bg-yellow-400 text-yellow-950 text-[10px] lg:text-xs font-bold py-1 px-3 lg:px-4 rounded-full shadow-[0_4px_10px_rgba(0,0,0,0.5)] transition-all z-20 flex items-center gap-1 transform hover:scale-105 border border-yellow-300 whitespace-nowrap active:scale-95"><Lock size={10} /> <span className="hidden lg:inline">預留</span></button>
-              )}
-
-              <div className={`mt-auto p-1 lg:p-1.5 flex flex-col gap-1 backdrop-blur-md border-t border-white/10 z-10 rounded-b-lg ${style.costBg}`}>
-                <div className="flex flex-nowrap gap-0.5 lg:gap-1.5 items-end justify-center min-h-[20px] lg:min-h-[24px]">
-                  {Object.entries(card.cost).map(([type, amount]) => (
-                    <div key={type} className={`flex items-center justify-center w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 rounded-full border-2 ${GEM_STYLES[type].tokenGradient} ${GEM_STYLES[type].tokenBorder} ${type === 'diamond' ? 'text-slate-900' : 'text-white'} text-[10px] lg:text-xs xl:text-sm font-black shadow-sm`}>{amount}</div>
-                  ))}
-                </div>
-              </div>
-              <div className={`absolute top-1/2 -translate-y-1/2 left-1 flex flex-col gap-1 opacity-30`}>{Array(card.level).fill(0).map((_, i) => (<div key={i} className="w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full bg-white shadow"></div>))}</div>
-            </div>
-          );
-        };
-
-        const NobleTile = ({ noble }) => (
-          <div className={`prevent-squish w-20 h-28 lg:w-24 lg:h-32 xl:w-28 xl:h-36 rounded-lg border-4 border-amber-500/50 flex flex-col items-center p-2 lg:p-2.5 shadow-xl relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200`}>
-            <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] mix-blend-overlay"></div>
-            <div className="absolute top-0 right-0 p-1 opacity-20"><Crown size={50} className="text-amber-500" /></div>
-            <div className="relative z-10 w-full h-full flex flex-col justify-between">
-              <div className="text-2xl lg:text-3xl xl:text-4xl font-serif font-black text-amber-900 self-start leading-none drop-shadow-sm">{noble.points}</div>
-              <div className="flex flex-col gap-0.5 lg:gap-1 self-end w-full pl-1 lg:pl-2">
-                {Object.entries(noble.req).map(([type, amt]) => (
-                  <div key={type} className="flex justify-between items-center bg-white/70 rounded px-1.5 lg:px-2 h-4 lg:h-5 shadow-sm border border-amber-200/50"><MiniGem type={type} /><span className="text-[10px] lg:text-xs font-bold text-amber-950">{amt}</span></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-
-        const MiniNoble = ({ noble }) => (
-           <div className="prevent-squish w-10 h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 rounded border-2 border-amber-300 bg-gradient-to-br from-amber-100 to-amber-300 shadow-md flex items-center justify-center relative group cursor-help shrink-0">
-              <div className="absolute top-0 left-0 text-[10px] lg:text-xs font-black text-amber-900 p-0.5 leading-none">{noble.points}</div>
-              <Crown size={20} className="text-amber-600 opacity-50" />
-           </div>
-        );
-
-        // --- 主遊戲組件 ---
-        function SplendorGame() {
-          const [gameState, setGameState] = useState('setup'); 
-          const [deck, setDeck] = useState(null);
-          const [board, setBoard] = useState({ 1: [], 2: [], 3: [] });
-          const [nobles, setNobles] = useState([]);
-          const [bank, setBank] = useState({});
-          const [players, setPlayers] = useState([]);
-          const [turn, setTurn] = useState(0);
-          const [selectedGems, setSelectedGems] = useState([]);
-          const [logs, setLogs] = useState([]);
-          const [winner, setWinner] = useState(null);
-
-          const currentPlayerIndex = turn % 2;
-          const currentPlayer = players[currentPlayerIndex];
-
-          const initGame = () => {
-            const newDeck = generateDeck();
-            const newNobles = generateNobles();
-            const newBoard = { 1: newDeck[1].splice(0, 4), 2: newDeck[2].splice(0, 4), 3: newDeck[3].splice(0, 4) };
-            const initialBank = { emerald: 4, sapphire: 4, ruby: 4, diamond: 4, onyx: 4, gold: 5 };
-            setDeck(newDeck); setBoard(newBoard); setNobles(newNobles); setBank(initialBank);
-            setPlayers([
-              { id: 0, name: "玩家 1", gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] },
-              { id: 1, name: "玩家 2", gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] },
-            ]);
-            setTurn(0); setLogs(["遊戲開始！"]); setSelectedGems([]); setWinner(null); setGameState('playing');
-          };
-
-          const addLog = (msg) => setLogs(prev => [msg, ...prev].slice(0, 8));
-          const totalGems = (player) => Object.values(player.gems).reduce((a, b) => a + b, 0);
-
-          const canAfford = (player, card) => {
-            let missing = 0;
-            for (const [type, cost] of Object.entries(card.cost)) {
-              const discount = player.bonuses[type];
-              const available = player.gems[type];
-              const costAfterDiscount = Math.max(0, cost - discount);
-              if (available < costAfterDiscount) missing += (costAfterDiscount - available);
-            }
-            return player.gems.gold >= missing;
-          };
-
-          const getAffordCost = (player, card) => {
-            let payment = { emerald: 0, sapphire: 0, ruby: 0, diamond: 0, onyx: 0, gold: 0 };
-            let goldNeeded = 0;
-            for (const [type, cost] of Object.entries(card.cost)) {
-              const discount = player.bonuses[type];
-              const actualCost = Math.max(0, cost - discount);
-              const paidFromGems = Math.min(player.gems[type], actualCost);
-              payment[type] = paidFromGems;
-              goldNeeded += (actualCost - paidFromGems);
-            }
-            payment.gold = goldNeeded;
-            return payment;
-          };
-
-          const handleGemClick = (type) => {
-            if (type === 'gold') return;
-            if (bank[type] <= 0) return;
-            const isDouble = selectedGems.length === 2 && selectedGems[0] === selectedGems[1];
-            if (isDouble || selectedGems.length === 3) return;
-            const countInSelection = selectedGems.filter(g => g === type).length;
-            if (countInSelection === 1) {
-              if (bank[type] < 4) { addLog(`不足4個，無法拿取2個`); return; }
-              if (selectedGems.length > 1) { addLog("異色時無法拿同色"); return; }
-            }
-            if (selectedGems.length === 2 && selectedGems[0] !== selectedGems[1] && selectedGems.includes(type)) { addLog("不能重複拿取"); return; }
-            setSelectedGems([...selectedGems, type]);
-          };
-
-          const confirmTakeGems = () => {
-            if (selectedGems.length === 0) return;
-            if (totalGems(currentPlayer) + selectedGems.length > MAX_GEMS) { addLog(`宝石上限10个！`); setSelectedGems([]); return; }
-            const newBank = { ...bank };
-            const newPlayer = { ...currentPlayer, gems: { ...currentPlayer.gems } };
-            selectedGems.forEach(g => { newBank[g]--; newPlayer.gems[g]++; });
-            setBank(newBank); updatePlayer(newPlayer);
-            addLog(`${currentPlayer.name} 拿取: ${selectedGems.map(g => GEM_STYLES[g].label).join(' ')}`);
-            setSelectedGems([]); endTurn(newPlayer);
-          };
-
-          const handleBuyCard = (card, fromReserved = false) => {
-            if (!canAfford(currentPlayer, card)) return;
-            const payment = getAffordCost(currentPlayer, card);
-            const newBank = { ...bank };
-            const newPlayer = { ...currentPlayer, gems: { ...currentPlayer.gems }, bonuses: { ...currentPlayer.bonuses } };
-            Object.entries(payment).forEach(([type, amt]) => { newBank[type] += amt; newPlayer.gems[type] -= amt; });
-            newPlayer.bonuses[card.bonus]++;
-            newPlayer.score += card.points;
-            if (fromReserved) newPlayer.reserved = newPlayer.reserved.filter(c => c.id !== card.id);
-            else replaceCardOnBoard(card);
-            setBank(newBank); addLog(`${newPlayer.name} 購買 (+${card.points})`); checkNoblesVisit(newPlayer);
-          };
-
-          const handleReserveCard = (card) => {
-            if (currentPlayer.reserved.length >= MAX_RESERVED) { addLog("預留位已滿"); return; }
-            const newPlayer = { ...currentPlayer, reserved: [...currentPlayer.reserved, card] };
-            const newBank = { ...bank };
-            if (newBank.gold > 0) {
-              if (totalGems(newPlayer) < MAX_GEMS) { newBank.gold--; newPlayer.gems.gold++; addLog(`${newPlayer.name} 預留+黄金`); }
-              else addLog(`${newPlayer.name} 預留 (滿)`);
-            } else addLog(`${newPlayer.name} 預留 (無黄金)`);
-            replaceCardOnBoard(card); setBank(newBank); endTurn(newPlayer);
-          };
-
-          const replaceCardOnBoard = (card) => {
-            const lvl = card.level;
-            const newBoard = { ...board };
-            const row = newBoard[lvl].filter(c => c.id !== card.id);
-            if (deck[lvl].length > 0) row.push(deck[lvl].pop());
-            newBoard[lvl] = row; setBoard(newBoard);
-          };
-
-          const checkNoblesVisit = (player) => {
-            let visitedSomething = false;
-            const newNobles = [...nobles];
-            const playerNobles = [...player.visitedNobles];
-            const newPlayer = { ...player };
-            for (let i = newNobles.length - 1; i >= 0; i--) {
-              const noble = newNobles[i];
-              let eligible = true;
-              for (const [type, req] of Object.entries(noble.req)) { if (player.bonuses[type] < req) { eligible = false; break; } }
-              if (eligible) {
-                addLog(`🎉 貴族來訪！+${noble.points}分`);
-                newPlayer.score += noble.points;
-                playerNobles.push(noble);
-                newNobles.splice(i, 1);
-                visitedSomething = true;
-                break; 
-              }
-            }
-            if (visitedSomething) { newPlayer.visitedNobles = playerNobles; setNobles(newNobles); }
-            updatePlayer(newPlayer); endTurn(newPlayer);
-          };
-
-          const updatePlayer = (newPlayer) => { const newPlayers = [...players]; newPlayers[currentPlayerIndex] = newPlayer; setPlayers(newPlayers); };
-          const endTurn = (finalPlayerState) => {
-            if (finalPlayerState.score >= POINTS_TO_WIN) { setWinner(finalPlayerState); setGameState('end'); return; }
-            setTurn(turn + 1); setSelectedGems([]);
-          };
-
-          const [scale, setScale] = useState(1);
-          useEffect(() => {
-            const handleResize = () => {
-                const h = window.innerHeight;
-                if (h < 850) { setScale(Math.min(1, h / 900)); } else { setScale(1); }
-            };
-            window.addEventListener('resize', handleResize);
-            handleResize();
-            return () => window.removeEventListener('resize', handleResize);
-          }, []);
-
-          if (gameState === 'setup') {
-            return (
-              <div className="h-screen w-screen bg-slate-900 flex flex-col items-center justify-center text-white font-serif relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/20 blur-[100px] rounded-full pointer-events-none"></div>
-                <div className="z-10 text-center space-y-6 animate-fade-in-up">
-                  <Crown size={60} className="mx-auto text-amber-500 animate-bounce" />
-                  <h1 className="text-6xl font-black bg-gradient-to-b from-amber-300 to-amber-600 bg-clip-text text-transparent drop-shadow-sm tracking-widest uppercase">Splendor</h1>
-                  <h2 className="text-xl text-slate-400 tracking-widest border-t border-b border-slate-700 py-2 inline-block">璀璨宝石</h2>
-                  <div className="h-4"></div>
-                  <button onClick={initGame} className="px-12 py-4 bg-gradient-to-r from-amber-600 to-yellow-600 rounded-full text-lg font-bold hover:scale-105 active:scale-95 transition-all border-2 border-amber-400/50 text-white shadow-xl">开始游戏 (2人对战)</button>
-                </div>
-              </div>
-            );
-          }
-
-          return (
-            <div className="h-full w-full bg-[#0f172a] text-slate-200 overflow-hidden font-sans select-none flex flex-col">
-              {/* Header */}
-              <div className="h-10 lg:h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 lg:px-6 shadow-2xl z-40 shrink-0">
-                <div className="flex items-center gap-2 text-amber-500 font-serif font-black text-lg lg:text-xl tracking-wide"><Crown size={20} strokeWidth={2.5} /> SPLENDOR</div>
-                <div className="flex gap-4 lg:gap-8 bg-slate-800 px-3 lg:px-4 py-1 rounded-full border border-slate-700 shadow-inner text-xs lg:text-sm">
-                  <div className={`flex items-center gap-2 ${currentPlayerIndex === 0 ? 'text-amber-400 font-bold' : 'text-slate-500'}`}><div className={`w-1.5 h-1.5 rounded-full ${currentPlayerIndex === 0 ? 'bg-amber-400 animate-pulse' : 'bg-slate-700'}`}></div>玩家 1</div>
-                  <div className="text-slate-700 font-thin">|</div>
-                  <div className={`flex items-center gap-2 ${currentPlayerIndex === 1 ? 'text-amber-400 font-bold' : 'text-slate-500'}`}><div className={`w-1.5 h-1.5 rounded-full ${currentPlayerIndex === 1 ? 'bg-amber-400 animate-pulse' : 'bg-slate-700'}`}></div>玩家 2</div>
-                </div>
-                <button onClick={() => setGameState('setup')} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors border border-slate-700 text-xs lg:text-sm font-bold">
-                  <RotateCcw size={14}/><span>重新開始</span>
-                </button>
-              </div>
-
-              <div className="flex-1 flex overflow-hidden relative" style={{ height: 'calc(100% - 10rem)' }}> 
-                <div className="w-32 lg:w-40 xl:w-48 bg-[#0f172a] border-r border-slate-800 p-2 lg:p-3 flex flex-col gap-2 z-10 shadow-xl shrink-0 h-full">
-                  <div className="flex items-center gap-2 text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest"><ScrollText size={12} /> 游戏日志</div>
-                  <div className="flex-1 rounded-lg text-[10px] lg:text-xs overflow-y-auto font-mono space-y-2 custom-scrollbar pr-1">
-                    {logs.map((l, i) => (<div key={i} className="text-slate-400 leading-tight border-l-2 border-slate-700 pl-2 py-0.5">{l}</div>))}
-                  </div>
-                </div>
-
-                <div className="flex-1 flex flex-col items-center justify-start relative z-0 overflow-hidden">
-                    <div className="w-full h-full flex flex-col items-center justify-start pt-2 lg:pt-4" style={{ transform: `scale(${scale})`, transformOrigin: 'top center', transition: 'transform 0.3s ease' }}>
-                      <div className="flex flex-col gap-2 lg:gap-3 w-full max-w-[95%] h-full justify-start">
-                        <div className="w-full flex flex-col items-center bg-slate-800/50 rounded-xl p-1 lg:p-2 border border-amber-900/30 shrink-0 mb-1">
-                           <div className="text-amber-500 font-serif font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest flex items-center gap-1"><Crown size={10} /> 贵族</div>
-                           <div className="flex gap-2 lg:gap-4 justify-center">
-                              {nobles.length > 0 ? nobles.map(n => <NobleTile key={n.id} noble={n} />) : (<div className="text-slate-600 italic text-xs py-2">贵族离场</div>)}
-                           </div>
-                        </div>
-                        <div className="flex flex-col gap-2 flex-1 justify-center min-h-0">
-                          {[3, 2, 1].map(level => (
-                            <div key={level} className="flex gap-2 lg:gap-4 justify-center h-full max-h-[150px] lg:max-h-[170px] xl:max-h-[190px]">
-                              <div className={`prevent-squish w-24 h-full lg:w-28 lg:h-full xl:w-40 rounded-lg lg:rounded-xl border-2 flex flex-col items-center justify-center shadow-xl relative shrink-0 ${LEVEL_CONFIG[level].bg} ${LEVEL_CONFIG[level].borderColor}`}>
-                                <div className={`text-3xl lg:text-4xl font-serif font-black ${LEVEL_CONFIG[level].dotColor}`}>{Array(level).fill('●').join('')}</div>
-                                <div className="mt-1 text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Deck</div>
-                                <div className="text-xs lg:text-sm font-bold text-white">{deck[level].length}</div>
-                              </div>
-                              {board[level].map(card => (<Card key={card.id} card={card} canBuy={gameState === 'playing' && canAfford(currentPlayer, card)} onBuy={handleBuyCard} onReserve={handleReserveCard} />))}
-                              {Array(4 - board[level].length).fill(0).map((_, i) => (<div key={i} className="prevent-squish w-24 h-full lg:w-28 xl:w-40 rounded-lg lg:rounded-xl border-2 border-dashed border-slate-700 bg-slate-800/30 shrink-0"></div>))}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                </div>
-
-                <div className="w-32 lg:w-36 xl:w-40 bg-[#0f172a] border-l border-slate-800 p-2 lg:p-3 flex flex-col gap-1 z-10 shadow-xl shrink-0 h-full overflow-y-auto custom-scrollbar">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 text-center">宝石银行</div>
-                  <div className="flex-1 flex flex-col gap-1 lg:gap-2">
-                    <button disabled={true} className="prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center bg-yellow-900/10 border border-yellow-900/30 opacity-80 min-h-[50px] lg:min-h-[60px]">
-                        <GemToken type="gold" size="md" showCount={false} />
-                        <span className="text-[10px] lg:text-xs font-bold text-yellow-700 mt-0.5">黄金</span>
-                        <span className="absolute top-1 right-2 text-xs font-black text-yellow-800">{bank.gold}</span>
-                    </button>
-                    {GEM_TYPES.map(type => (
-                      <button key={type} onClick={() => handleGemClick(type)} disabled={bank[type] === 0 || gameState !== 'playing'} className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center transition-all group min-h-[50px] lg:min-h-[60px] bg-slate-800/40 border border-slate-700 active:bg-slate-700 ${selectedGems.includes(type) ? 'ring-2 ring-emerald-500 bg-slate-800' : ''} ${bank[type] === 0 ? 'opacity-30 grayscale cursor-not-allowed' : ''}`}>
-                        <GemToken type={type} size="md" showCount={false} />
-                        <span className="text-[10px] font-bold text-slate-400 mt-0.5 group-hover:text-white">{GEM_STYLES[type].label}</span>
-                        <span className="absolute top-1 right-2 text-xs font-black text-slate-600 group-hover:text-slate-300">{bank[type]}</span>
-                        {selectedGems.filter(g => g === type).length > 0 && (<div className="absolute top-1 left-1 bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shadow-lg border border-slate-900 z-10">{selectedGems.filter(g => g === type).length}</div>)}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-1 space-y-1">
-                     {selectedGems.length > 0 ? (
-                      <><button onClick={confirmTakeGems} className="w-full py-1.5 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-bold rounded-lg shadow-lg active:scale-95 transition-all text-xs">确认</button>
-                        <button onClick={() => setSelectedGems([])} className="w-full py-1 text-slate-500 text-[10px] font-bold uppercase tracking-wider hover:text-white">取消</button></>
-                     ) : (<div className="p-2 rounded bg-slate-900/50 border border-slate-800 text-center"><p className="text-[10px] text-slate-500">轮到 <span className="text-amber-500 font-bold">{currentPlayer.name}</span></p></div>)}
-                  </div>
-                </div>
-              </div>
-
-              <div className="h-32 lg:h-40 xl:h-48 bg-[#0f172a] border-t border-slate-800 grid grid-cols-2 divide-x divide-slate-800 z-30 shrink-0 shadow-2xl">
-                {players.map((p, idx) => {
-                  const isActive = currentPlayerIndex === idx;
-                  return (
-                  <div key={p.id} className={`flex transition-colors relative ${isActive ? 'bg-slate-900' : ''}`}>
-                    {isActive && <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_15px_rgba(245,158,11,1)]"></div>}
-                    <div className="w-20 lg:w-24 xl:w-28 flex flex-col items-center justify-center p-1 border-r border-slate-800/50 gap-1 lg:gap-2">
-                       <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center border-2 shadow-lg ${isActive ? 'bg-amber-600 border-amber-400 text-white' : 'bg-slate-800 border-slate-700 text-slate-500'}`}><User size={18} /></div>
-                       <div className="text-center"><div className={`font-bold text-xs lg:text-sm leading-none mb-0.5 ${isActive ? 'text-white' : 'text-slate-500'}`}>{p.name}</div><div className="text-[8px] text-slate-600 font-bold uppercase">{isActive ? 'TURN' : 'WAIT'}</div></div>
-                       <div className="flex flex-col items-center bg-black/20 p-1 rounded-lg w-full"><div className="text-yellow-500 font-black text-lg lg:text-xl">{p.score}</div></div>
-                    </div>
-                    <div className="w-10 lg:w-14 border-r border-slate-800/50 flex flex-col p-1 bg-black/10">
-                       <div className="text-[8px] text-slate-600 font-bold uppercase mb-1 text-center">贵族</div>
-                       <div className="flex-1 flex flex-col gap-1 items-center justify-start overflow-y-auto custom-scrollbar">
-                          {p.visitedNobles.length > 0 ? p.visitedNobles.map((n, i) => (<MiniNoble key={i} noble={n} />)) : (<div className="w-8 h-8 rounded border border-dashed border-slate-700 flex items-center justify-center opacity-30"><Crown size={14} /></div>)}
-                       </div>
-                    </div>
-                    <div className="flex-1 flex flex-col border-r border-slate-800/50">
-                       <div className="flex-1 flex items-center px-1 lg:px-2 border-b border-slate-800/50 relative bg-black/10">
-                          <div className="flex-1 flex justify-around items-center">
-                              <div className="flex flex-col items-center"><GemToken type="gold" size="sm" count={p.gems.gold} className="scale-90" /></div>
-                              <div className="w-px h-6 bg-slate-700/30"></div>
-                              {GEM_TYPES.map(t => (<div key={t} className="flex flex-col items-center"><GemToken type={t} size="sm" count={p.gems[t]} className={`${p.gems[t] === 0 ? 'opacity-20 grayscale' : ''} scale-90`} /></div>))}
-                          </div>
-                       </div>
-                       <div className="flex-1 flex items-center px-1 lg:px-2 relative">
-                          <div className="flex-1 flex justify-around items-center">
-                              {GEM_TYPES.map(t => (<div key={t} className={`${p.bonuses[t] === 0 ? 'opacity-10 grayscale' : ''}`}><BonusCardStack type={t} count={p.bonuses[t]} /></div>))}
-                          </div>
-                       </div>
-                    </div>
-                    <div className="w-20 lg:w-28 flex flex-col p-1 lg:p-2 bg-black/20">
-                       <div className="flex items-center gap-1 mb-1 opacity-50 text-[8px] font-bold uppercase tracking-wider text-slate-400 text-center justify-center"><Grip size={10} /> 预留</div>
-                       <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-1 items-center justify-center">
-                          {p.reserved.map((c) => (
-                            <div key={c.id} className={`w-full h-full rounded border-2 flex items-center justify-center relative shadow-md transition-transform ${canAfford(p, c) ? 'border-green-500 bg-green-900/20 cursor-pointer active:scale-95' : 'border-slate-600 bg-slate-800'}`} onClick={() => canAfford(p, c) && handleBuyCard(c, true)}>
-                                <div className={`absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full ${canAfford(p,c) ? 'bg-green-500 animate-pulse' : 'bg-yellow-600'}`}></div>
-                                <MiniGem type={c.bonus} />
-                                <div className="absolute bottom-0.5 font-serif font-bold text-white text-[8px]">{c.points || ''}</div>
-                            </div>
-                          ))}
-                          {Array(4 - p.reserved.length).fill(0).map((_, i) => (<div key={i} className={`w-full h-full rounded border border-dashed border-slate-800/50 bg-black/10 flex items-center justify-center ${i + p.reserved.length >= 3 ? 'opacity-20 bg-red-900/10' : ''}`}>{i + p.reserved.length >= 3 ? <Lock size={10} className="text-slate-700" /> : null}</div>))}
-                       </div>
-                    </div>
-                  </div>
-                )})}
-              </div>
-
-              {gameState === 'end' && (
-                <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-                  <div className="bg-slate-900 border-2 border-amber-500 rounded-2xl p-6 xl:p-10 max-w-lg w-full text-center shadow-[0_0_100px_rgba(245,158,11,0.2)]">
-                    <Trophy size={60} className="text-amber-500 mx-auto mb-4" />
-                    <h2 className="text-3xl xl:text-5xl font-black text-white mb-2">{winner?.name} 獲勝！</h2>
-                    <div className="text-xl xl:text-2xl text-amber-400 mb-6 font-bold">總得分: {winner?.score}</div>
-                    <button onClick={initGame} className="w-full py-3 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold rounded-xl text-lg active:scale-95 transition-transform">再來一局</button>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
+        function getSvg(type, className="", style="") {
+            return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${className}" style="${style}">${ICONS[type] || ''}</svg>`;
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<SplendorGame />);
+        // --- 初始化 ---
+        function initGame() {
+            // 生成卡牌
+            let deck = { 1: [], 2: [], 3: [] };
+            let id = 0;
+            // Level 1
+            for(let i=0; i<40; i++) {
+                let bonus = GEM_TYPES[i%5];
+                let cost = {};
+                // Simple cost gen
+                let c1 = GEM_TYPES[(i+1)%5], c2 = GEM_TYPES[(i+2)%5];
+                if(i%3===0) { cost[c1]=1; cost[c2]=1; cost[GEM_TYPES[(i+3)%5]]=1; cost[bonus]=1; }
+                else if(i%3===1) { cost[c1]=2; cost[c2]=2; } // 2x2
+                else { cost[c1]=3; }
+                deck[1].push({ id: `1-${id++}`, level:1, points: i%8===0?1:0, bonus, cost });
+            }
+            // Level 2
+            for(let i=0; i<30; i++) {
+                let bonus = GEM_TYPES[i%5];
+                let cost = {};
+                let c1 = GEM_TYPES[(i+2)%5], c2 = GEM_TYPES[(i+3)%5];
+                if(i%3===0) { cost[c1]=3; cost[c2]=2; cost[bonus]=2; }
+                else if(i%3===1) { cost[c1]=5; }
+                else { cost[c1]=4; cost[c2]=2; } // 6
+                deck[2].push({ id: `2-${id++}`, level:2, points: (i%3)+1, bonus, cost });
+            }
+            // Level 3
+            for(let i=0; i<20; i++) {
+                let bonus = GEM_TYPES[i%5];
+                let cost = {};
+                let c1 = GEM_TYPES[(i+1)%5], c2 = GEM_TYPES[(i+3)%5];
+                if(i%2===0) { cost[c1]=3; cost[c2]=3; cost[bonus]=3; cost[GEM_TYPES[(i+4)%5]]=3; }
+                else { cost[c1]=7; }
+                deck[3].push({ id: `3-${id++}`, level:3, points: (i%3)+3, bonus, cost });
+            }
+            // Shuffle
+            [1,2,3].forEach(l => {
+                for(let i = deck[l].length-1; i>0; i--){
+                    const j = Math.floor(Math.random()*(i+1));
+                    [deck[l][i], deck[l][j]] = [deck[l][j], deck[l][i]];
+                }
+            });
+
+            // 生成贵族
+            let allNobles = [];
+            for(let i=0; i<5; i++) {
+                // 2x4
+                let req = {}; req[GEM_TYPES[i]]=4; req[GEM_TYPES[(i+1)%5]]=4;
+                allNobles.push({id:`n4-${i}`, points:3, req});
+                // 3x3
+                let req3 = {}; req3[GEM_TYPES[i]]=3; req3[GEM_TYPES[(i+1)%5]]=3; req3[GEM_TYPES[(i+2)%5]]=3;
+                allNobles.push({id:`n3-${i}`, points:3, req:req3});
+            }
+            // Shuffle nobles
+            for(let i = allNobles.length-1; i>0; i--){
+                const j = Math.floor(Math.random()*(i+1));
+                [allNobles[i], allNobles[j]] = [allNobles[j], allNobles[i]];
+            }
+
+            state = {
+                deck,
+                board: { 1: deck[1].splice(0,4), 2: deck[2].splice(0,4), 3: deck[3].splice(0,4) },
+                nobles: allNobles.slice(0,3),
+                bank: { emerald:4, sapphire:4, ruby:4, diamond:4, onyx:4, gold:5 },
+                players: [
+                    { id:0, name:"玩家 1", gems:{emerald:0,sapphire:0,ruby:0,diamond:0,onyx:0,gold:0}, bonuses:{emerald:0,sapphire:0,ruby:0,diamond:0,onyx:0}, score:0, reserved:[], visitedNobles:[] },
+                    { id:1, name:"玩家 2", gems:{emerald:0,sapphire:0,ruby:0,diamond:0,onyx:0,gold:0}, bonuses:{emerald:0,sapphire:0,ruby:0,diamond:0,onyx:0}, score:0, reserved:[], visitedNobles:[] }
+                ],
+                turn: 0,
+                selectedGems: [],
+                logs: ["游戏开始！"],
+                winner: null
+            };
+            
+            document.getElementById('modal-overlay').style.display = 'none';
+            render();
+        }
+
+        // --- 游戏逻辑 ---
+        function getCurrentPlayer() { return state.players[state.turn % 2]; }
+        
+        function addLog(msg) {
+            state.logs.unshift(msg);
+            renderLogs();
+        }
+
+        function canAfford(player, card) {
+            let missing = 0;
+            for(let type in card.cost) {
+                let cost = card.cost[type];
+                let discount = player.bonuses[type];
+                let needed = Math.max(0, cost - discount);
+                if(player.gems[type] < needed) missing += (needed - player.gems[type]);
+            }
+            return player.gems.gold >= missing;
+        }
+
+        function handleGemClick(type) {
+            if(type==='gold' || state.bank[type]<=0) return;
+            const sel = state.selectedGems;
+            
+            // Logic: 2 same or 3 diff
+            if(sel.length >= 3) return; // Full
+            if(sel.length === 2 && sel[0] === sel[1]) return; // Already double
+
+            let countInSel = sel.filter(g=>g===type).length;
+            if(countInSel === 1) {
+                if(state.bank[type]<4) { alert("剩余不足4个，不能拿取2个"); return; }
+                if(sel.length > 1) { alert("已选异色，不能拿同色"); return; }
+            }
+            if(sel.length === 2 && sel[0]!==sel[1] && sel.includes(type)) { alert("不能重复拿取"); return; }
+            
+            state.selectedGems.push(type);
+            renderBank();
+        }
+
+        function cancelSelection() {
+            state.selectedGems = [];
+            renderBank();
+        }
+
+        function confirmTakeGems() {
+            if(state.selectedGems.length===0) return;
+            let p = getCurrentPlayer();
+            let total = Object.values(p.gems).reduce((a,b)=>a+b,0);
+            if(total + state.selectedGems.length > 10) { alert("手牌宝石上限为10！"); state.selectedGems=[]; renderBank(); return; }
+
+            state.selectedGems.forEach(g => {
+                state.bank[g]--;
+                p.gems[g]++;
+            });
+            addLog(`${p.name} 拿取: ${state.selectedGems.map(t=>STYLES[t].label).join(' ')}`);
+            state.selectedGems = [];
+            endTurn();
+        }
+
+        function handleBuy(cardId, level, fromReserved=false) {
+            let p = getCurrentPlayer();
+            // Find card
+            let card;
+            if(fromReserved) {
+                card = p.reserved.find(c=>c.id===cardId);
+            } else {
+                card = state.board[level].find(c=>c.id===cardId);
+            }
+            
+            if(!canAfford(p, card)) return;
+
+            // Pay
+            let cost = card.cost;
+            for(let type in cost) {
+                let discount = p.bonuses[type];
+                let realCost = Math.max(0, cost[type] - discount);
+                let payGem = Math.min(p.gems[type], realCost);
+                p.gems[type] -= payGem;
+                state.bank[type] += payGem;
+                let payGold = realCost - payGem;
+                if(payGold > 0) {
+                    p.gems.gold -= payGold;
+                    state.bank.gold += payGold;
+                }
+            }
+
+            // Get card
+            p.bonuses[card.bonus]++;
+            p.score += card.points;
+            
+            if(fromReserved) {
+                p.reserved = p.reserved.filter(c=>c.id!==cardId);
+            } else {
+                // Replace on board
+                let row = state.board[level];
+                let idx = row.findIndex(c=>c.id===cardId);
+                if(idx !== -1) {
+                    if(state.deck[level].length > 0) row[idx] = state.deck[level].pop();
+                    else row.splice(idx, 1);
+                }
+            }
+
+            addLog(`${p.name} 购买了 ${STYLES[card.bonus].label} 卡牌`);
+            checkNobles(p);
+        }
+
+        function handleReserve(cardId, level) {
+            let p = getCurrentPlayer();
+            if(p.reserved.length >= 3) { alert("预留位已满"); return; }
+            
+            let card = state.board[level].find(c=>c.id===cardId);
+            p.reserved.push(card);
+            
+            // Gold
+            if(state.bank.gold > 0) {
+                let total = Object.values(p.gems).reduce((a,b)=>a+b,0);
+                if(total < 10) {
+                    state.bank.gold--;
+                    p.gems.gold++;
+                }
+            }
+
+            // Replace
+            let row = state.board[level];
+            let idx = row.findIndex(c=>c.id===cardId);
+            if(state.deck[level].length > 0) row[idx] = state.deck[level].pop();
+            else row.splice(idx, 1);
+
+            addLog(`${p.name} 预留了卡牌`);
+            endTurn();
+        }
+
+        function checkNobles(p) {
+            // Check nobles
+            let earned = false;
+            for(let i=state.nobles.length-1; i>=0; i--) {
+                let n = state.nobles[i];
+                let ok = true;
+                for(let t in n.req) {
+                    if(p.bonuses[t] < n.req[t]) { ok = false; break; }
+                }
+                if(ok) {
+                    p.score += n.points;
+                    p.visitedNobles.push(n);
+                    state.nobles.splice(i, 1);
+                    addLog(`${p.name} 获得了贵族 (${n.points}分)`);
+                    earned = true;
+                    break; // Limit 1 per turn usually
+                }
+            }
+            endTurn();
+        }
+
+        function endTurn() {
+            let p = getCurrentPlayer();
+            if(p.score >= 15) {
+                state.winner = p;
+                render();
+                document.getElementById('winner-name').textContent = p.name + " 获胜！";
+                document.getElementById('winner-score').textContent = "总分: " + p.score;
+                document.getElementById('modal-overlay').style.display = 'flex';
+                return;
+            }
+            state.turn++;
+            render();
+        }
+
+        // --- 渲染逻辑 ---
+
+        function render() {
+            renderHeader();
+            renderLogs();
+            renderBank();
+            renderBoard();
+            renderPlayers();
+            
+            // Auto scale board
+            const h = window.innerHeight;
+            const scaler = document.getElementById('board-scaler');
+            if(h < 850) {
+                scaler.style.transform = `scale(${Math.min(1, h/900)})`;
+            } else {
+                scaler.style.transform = 'scale(1)';
+            }
+        }
+
+        function renderHeader() {
+            let p1 = state.players[0], p2 = state.players[1];
+            let cur = state.turn % 2;
+            document.getElementById('turn-p1').style.color = cur===0 ? '#f59e0b' : '#64748b';
+            document.getElementById('turn-p1').style.fontWeight = cur===0 ? 'bold' : 'normal';
+            document.getElementById('turn-p2').style.color = cur===1 ? '#f59e0b' : '#64748b';
+            document.getElementById('turn-p2').style.fontWeight = cur===1 ? 'bold' : 'normal';
+        }
+
+        function renderLogs() {
+            document.getElementById('logs').innerHTML = state.logs.map(l => `<div>> ${l}</div>`).join('');
+        }
+
+        function renderBank() {
+            const container = document.getElementById('bank-area');
+            let html = '';
+            
+            // Gold
+            html += `<div class="bank-btn">
+                <div class="token-icon">${getSvg('gold', 'icon fill-white stroke-black')}</div>
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div style="width:40px; height:40px; background:radial-gradient(#fcd34d, #b45309); border-radius:50%; border:2px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,0.5);"></div>
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none text-yellow-900 font-bold text-lg"></div>
+                <span class="bank-count">${state.bank.gold}</span>
+                <span class="bank-label" style="color:#fcd34d">黄金</span>
+            </div>`;
+
+            // Gems
+            GEM_TYPES.forEach(t => {
+                let count = state.selectedGems.filter(g=>g===t).length;
+                let disabled = state.turn%2 !== 0 && false; // simplified
+                let style = STYLES[t];
+                
+                html += `<div class="bank-btn ${count>0?'selected':''}" onclick="handleGemClick('${t}')">
+                    <div style="width:40px; height:40px; background:${style.light}; border-radius:50%; border:2px solid ${style.border}; box-shadow:inset 0 0 10px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;">
+                         ${getSvg(t, 'fill-white stroke-none', 'width:60%; height:60%')}
+                    </div>
+                    <span class="bank-count text-white">${state.bank[t]}</span>
+                    <span class="bank-label">${style.label}</span>
+                    ${count>0 ? `<div class="absolute top-0 left-0 bg-green-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border border-black">${count}</div>` : ''}
+                </div>`;
+            });
+
+            container.innerHTML = html;
+            
+            // Buttons
+            const hasSel = state.selectedGems.length > 0;
+            document.getElementById('btn-take').style.display = hasSel ? 'flex' : 'none';
+            document.getElementById('btn-cancel').style.display = hasSel ? 'flex' : 'none';
+            document.getElementById('btn-take').innerHTML = `确认 (${state.selectedGems.length})`;
+        }
+
+        function renderBoard() {
+            // Nobles
+            const nArea = document.getElementById('nobles-area');
+            if(state.nobles.length === 0) nArea.innerHTML = '<div style="color:#64748b; font-size:12px;">贵族已全部离场</div>';
+            else {
+                nArea.innerHTML = state.nobles.map(n => {
+                    let reqHtml = '';
+                    for(let t in n.req) {
+                        let s = STYLES[t];
+                        reqHtml += `<div class="noble-req-row">
+                            <div style="width:12px; height:12px; border-radius:50%; background:${s.light}; border:1px solid ${s.border};"></div>
+                            <span class="noble-req-val">${n.req[t]}</span>
+                        </div>`;
+                    }
+                    return `<div class="noble-tile">
+                        <div class="noble-points">${n.points}</div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end;">${reqHtml}</div>
+                        <div style="position:absolute; top:2px; right:2px; opacity:0.3; color:#b45309">${getSvg('crown')}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            // Rows
+            const rows = document.getElementById('board-rows');
+            let html = '';
+            [3, 2, 1].forEach(lvl => {
+                let color = LVL_CONFIG[lvl].color;
+                let border = LVL_CONFIG[lvl].border;
+                
+                let cardsHtml = state.board[lvl].map(c => {
+                    let s = STYLES[c.bonus];
+                    let can = canAfford(getCurrentPlayer(), c);
+                    
+                    // 成本栏
+                    let costHtml = '';
+                    for(let t in c.cost) {
+                        let cs = STYLES[t];
+                        costHtml += `<div class="cost-bubble ${t==='diamond'?'diamond-cost':''}" style="background:${cs.light}; border-color:${cs.border}">${c.cost[t]}</div>`;
+                    }
+
+                    // 1. 白色钻石卡：bg-slate-200, 费用栏深灰
+                    // 2. 黑卡：bg-slate-900, 费用栏深黑
+                    // 3. 其他：bg-color-900, 费用栏 high saturation
+                    let bgClass = s.bg; 
+                    let costBg = s.costBg;
+                    if(c.bonus === 'diamond') { bgClass = '#cbd5e1'; costBg = '#64748b'; } // 钻石卡优化：银白底，深灰栏
+                    if(c.bonus === 'onyx') { bgClass = '#0f172a'; costBg = '#1e293b'; }
+
+                    // 分数颜色：统一白色+描边
+                    let pointColor = 'white'; 
+                    let textShadow = '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'; // CSS text stroke hack
+
+                    // 右上角图标：白底 + 彩色填充 + (可选描边)
+                    // 钻石：白底 + 白填充 + 黑描边
+                    let iconFill = s.light;
+                    let iconStroke = 'none';
+                    if (c.bonus === 'diamond') { iconFill = 'white'; iconStroke = 'black'; }
+
+                    return `<div class="card ${can ? 'can-buy' : ''}" style="background-color:${bgClass}; border-color:${s.border}" onclick="handleBuy('${c.id}', ${lvl})">
+                        <div class="${s.pat}" style="position:absolute; inset:0; opacity:0.15;"></div>
+                        
+                        <!-- 中心水印：白填充+黑描边，半透明 -->
+                        <div class="card-center-icon" style="color:white; fill:white; stroke:black; stroke-width:1;">
+                           ${getSvg(c.bonus)}
+                        </div>
+
+                        <div class="card-top">
+                            <div class="card-points" style="color:${pointColor}; text-shadow:${textShadow}">${c.points>0?c.points:''}</div>
+                            <div class="card-gem-icon">
+                                ${getSvg(c.bonus, '', `fill:${iconFill}; stroke:${iconStroke}; stroke-width:1.5px; width:22px; height:22px`)}
+                            </div>
+                        </div>
+
+                        ${!can ? `<div class="btn-reserve" onclick="event.stopPropagation(); handleReserve('${c.id}', ${lvl})">
+                            <div style="display:flex; align-items:center; gap:2px;">${getSvg('lock', '', 'width:10px;')} 预留</div>
+                        </div>` : ''}
+
+                        <div class="card-cost-bar" style="background-color:${costBg};">
+                            ${costHtml}
+                        </div>
+                    </div>`;
+                }).join('');
+
+                // Fillers
+                for(let i=0; i< 4 - state.board[lvl].length; i++) {
+                    cardsHtml += `<div style="width:110px; height:100%; border:2px dashed #334155; border-radius:10px; background:rgba(0,0,0,0.1)"></div>`;
+                }
+
+                html += `<div class="card-row">
+                    <div class="deck-stack" style="border-color:${border}">
+                        <div style="font-size:32px; font-weight:900; color:${color}">
+                            ${lvl===1?'●':(lvl===2?'●●':'●●●')}
+                        </div>
+                        <div style="font-size:10px; color:#94a3b8; font-weight:bold; margin-top:4px;">剩余</div>
+                        <div style="font-size:14px; color:white; font-weight:bold;">${state.deck[lvl].length}</div>
+                    </div>
+                    ${cardsHtml}
+                </div>`;
+            });
+            rows.innerHTML = html;
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById('players-area');
+            container.innerHTML = state.players.map((p, idx) => {
+                let active = idx === state.turn % 2;
+                
+                // Noble icons
+                let noblesHtml = p.visitedNobles.map(n => `<div class="mini-noble">${n.points}</div>`).join('');
+                
+                // Resources
+                let tokensHtml = GEM_TYPES.map(t => `<div class="res-item"><div class="mini-token" style="background:${STYLES[t].light}; border:1px solid ${STYLES[t].border}; border-radius:50%; box-shadow:0 1px 2px black;"></div><span style="font-size:12px; font-weight:bold;">${p.gems[t]}</span></div>`).join('');
+                tokensHtml = `<div class="res-item"><div class="mini-token" style="background:#eab308; border-radius:50%; border:1px solid #fff;"></div><span style="font-size:12px; font-weight:bold; color:#fcd34d">${p.gems.gold}</span></div>` + tokensHtml;
+
+                // Cards
+                let cardsHtml = GEM_TYPES.map(t => {
+                    let count = p.bonuses[t];
+                    let style = STYLES[t];
+                    let bg = t==='diamond' ? '#94a3b8' : style.costBg; // Cards display bg
+                    let iconFill = t==='diamond' ? 'white' : style.light;
+                    return `<div class="res-item" style="opacity:${count>0?1:0.3}">
+                        <div class="mini-card" style="background:${bg}; border-color:${style.border}">
+                           ${getSvg(t, '', `width:14px; fill:${iconFill}; stroke:${t==='diamond'?'black':'none'}`)}
+                        </div>
+                        <span style="font-size:12px; font-weight:bold; margin-top:2px;">${count}</span>
+                    </div>`;
+                }).join('');
+
+                // Reserved
+                let resHtml = p.reserved.map(c => {
+                     let can = canAfford(p, c);
+                     let s = STYLES[c.bonus];
+                     return `<div class="res-card ${can && active ? 'buyable' : ''}" onclick="${can && active ? `handleBuy('${c.id}', ${c.level}, true)` : ''}">
+                        <div style="position:absolute; top:2px; right:2px; width:8px; height:8px; border-radius:50%; background:${s.light}; border:1px solid white;"></div>
+                        <span style="font-weight:bold; font-family:'Times New Roman'; font-size:14px; color:white;">${c.points||''}</span>
+                     </div>`;
+                }).join('');
+                // Fill empty slots
+                for(let i=0; i< 3 - p.reserved.length; i++) {
+                    resHtml += `<div class="res-slot">${getSvg('lock', '', 'width:12px; opacity:0.3')}</div>`;
+                }
+
+                return `<div class="player-panel ${active?'active':''}">
+                    ${active ? '<div class="active-bar"></div>' : ''}
+                    <div class="p-info">
+                        <div class="p-avatar">${getSvg('user', '', 'width:24px')}</div>
+                        <div style="font-size:14px; font-weight:bold; color:${active?'white':'#64748b'}">${p.name}</div>
+                        <div class="p-score">${p.score}</div>
+                    </div>
+                    <div class="p-nobles no-scrollbar">${noblesHtml}</div>
+                    <div class="p-resources">
+                        <div class="res-row">${tokensHtml}</div>
+                        <div class="res-row" style="background:rgba(0,0,0,0.2)">${cardsHtml}</div>
+                    </div>
+                    <div class="p-reserved">
+                        <div style="font-size:10px; margin-bottom:2px; opacity:0.5">预留</div>
+                        <div class="res-grid">${resHtml}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Start
+        initGame();
+        
     </script>
 </body>
 </html>
