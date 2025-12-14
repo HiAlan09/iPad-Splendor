@@ -63,10 +63,12 @@
         const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
         const MARVEL_HEROES = ["钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"];
         
-        // 调整卡牌尺寸：修改宽度为原来的1.4倍左右，高度保持不变
+        // 调整卡牌尺寸：修改宽度为原来的1.25倍左右，高度保持不变
         // 原始: w-24 h-32 sm:w-28 sm:h-36 md:w-30 md:h-40 lg:w-34 lg:h-44 xl:w-38 xl:h-48
-        // 1.4倍: w-34 h-32 sm:w-40 sm:h-36 md:w-44 md:h-40 lg:w-48 lg:h-44 xl:w-52 xl:h-48
-        const CARD_SIZE_CLASSES = "w-34 h-32 sm:w-40 sm:h-36 md:w-44 md:h-40 lg:w-48 lg:h-44 xl:w-52 xl:h-48"; 
+        // 1.6倍(过大): w-40 h-32 sm:w-44 sm:h-36 md:w-48 md:h-40 lg:w-56 lg:h-44 xl:w-60 xl:h-48
+        // 1.4倍(略大): w-34 h-32 sm:w-40 sm:h-36 md:w-44 md:h-40 lg:w-48 lg:h-44 xl:w-52 xl:h-48
+        // 1.25倍(修正): w-30 h-32 sm:w-36 sm:h-36 md:w-38 md:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48
+        const CARD_SIZE_CLASSES = "w-30 h-32 sm:w-36 sm:h-36 md:w-38 md:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48"; 
         
         const POINTS_TO_WIN = 15;
         const MAX_GEMS = 10;
