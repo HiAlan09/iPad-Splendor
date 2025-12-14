@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Splendor">
     
-    <title>璀璨宝石 (Splendor) - iPad 终极优化版 V4</title>
+    <title>璀璨宝石 (Splendor) - iPad 终极优化版 V6</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -18,11 +18,12 @@
         /* 使用 dvh 修复 iPad Safari 地址栏问题 */
         html, body { height: 100dvh; width: 100vw; overflow: hidden; background-color: #0f172a; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
+        /* 根容器布局 */
         #root { height: 100%; width: 100%; display: flex; flex-direction: column; }
         
         /* 顶部安全区填充类 */
         .safe-top-padding {
-            padding-top: max(env(safe-area-inset-top), 12px); 
+            padding-top: max(env(safe-area-inset-top), 16px); 
         }
 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -62,10 +63,8 @@
         const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
         const MARVEL_HEROES = ["钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"];
         
-        // 稍微调整卡牌尺寸以避免重叠
-        const CARD_SIZE_CLASSES = "w-20 h-28 sm:w-24 sm:h-32 md:w-28 md:h-36 lg:w-32 lg:h-44 xl:w-36 xl:h-48"; 
-        // 预留卡牌尺寸
-        const RESERVED_CARD_SIZE = "w-20 h-28 lg:w-24 lg:h-32";
+        // 放大卡牌尺寸
+        const CARD_SIZE_CLASSES = "w-24 h-32 sm:w-28 sm:h-36 md:w-30 md:h-38 lg:w-34 lg:h-44 xl:w-38 xl:h-50"; 
         
         const POINTS_TO_WIN = 15;
         const MAX_GEMS = 10;
@@ -114,7 +113,7 @@
 
         const MiniGem = ({ type }) => {
           const colors = { emerald: 'bg-emerald-500 border-emerald-700', sapphire: 'bg-blue-600 border-blue-800', ruby: 'bg-red-600 border-red-800', diamond: 'bg-slate-200 border-slate-400', onyx: 'bg-slate-800 border-black', gold: 'bg-yellow-400 border-yellow-600' };
-          return <div className={`w-2 h-2 rounded-full border ${colors[type]} shadow-sm`}></div>;
+          return <div className={`w-2.5 h-2.5 rounded-full border ${colors[type]} shadow-sm`}></div>;
         };
 
         const GEM_STYLES = {
@@ -167,7 +166,6 @@
         const Card = ({ card, canBuy, onBuy, isReserving, isReservedView = false, inModal = false, customSizeClass }) => {
           const style = GEM_STYLES[card.bonus];
           const canReserve = isReserving && !isReservedView;
-          // Use custom size if provided, otherwise use default logic
           const sizeClass = customSizeClass || (inModal ? 'w-48 h-64 scale-100' : CARD_SIZE_CLASSES);
 
           return (
@@ -190,26 +188,26 @@
         };
 
         const NobleTile = ({ noble }) => (
-          <div className={`prevent-squish w-24 h-28 lg:w-28 lg:h-32 xl:w-32 xl:h-36 rounded-lg border-4 border-amber-500/50 flex flex-col p-1 shadow-xl relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200`}>
+          <div className={`prevent-squish w-full min-h-[100px] flex-1 rounded-lg border-4 border-amber-500/50 relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200 mb-2`}>
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] mix-blend-overlay"></div>
             
             {/* Hero Name Header */}
             <div className="absolute top-0 inset-x-0 bg-amber-500/20 py-0.5 text-center border-b border-amber-500/10 z-10">
-                <span className="text-[10px] font-black text-amber-900 leading-none block transform -translate-y-px truncate px-1">{noble.hero}</span>
+                <span className="text-xs font-black text-amber-900 leading-none block truncate px-1">{noble.hero}</span>
             </div>
 
-            {/* Left-Top: Points (Large) */}
-            <div className="absolute top-4 left-1 text-3xl lg:text-4xl xl:text-5xl font-serif font-black text-amber-900 leading-none drop-shadow-sm z-10 pl-1">{noble.points}</div>
+            {/* Left-Top: Points (Larger) */}
+            <div className="absolute top-5 left-2 text-5xl font-serif font-black text-amber-900 leading-none drop-shadow-sm z-10">{noble.points}</div>
 
-            {/* Left-Bottom: Crown (Large) */}
-            <div className="absolute bottom-1 left-1 opacity-40 text-amber-600 z-0"><Crown size={42} /></div>
+            {/* Left-Bottom: Crown (Much Larger) */}
+            <div className="absolute bottom-[-10px] left-[-10px] opacity-30 text-amber-600 z-0"><Crown size={120} /></div>
 
             {/* Right Side: Requirements (Vertical Column) */}
-            <div className="absolute top-5 right-1 bottom-1 flex flex-col gap-1 items-end justify-center z-10">
+            <div className="absolute top-6 right-2 bottom-2 flex flex-col gap-1 items-end justify-start z-10">
                 {Object.entries(noble.req).map(([type, amt]) => (
-                    <div key={type} className="flex justify-between items-center bg-white/70 rounded px-1.5 py-0.5 shadow-sm border border-amber-200/50 min-w-[32px]">
-                        <MiniGem type={type} />
-                        <span className="text-[10px] font-bold text-amber-950 ml-1">{amt}</span>
+                    <div key={type} className="flex justify-between items-center bg-white/80 rounded px-2 py-0.5 shadow-sm border border-amber-200/50 min-w-[40px]">
+                        <div className="scale-110"><MiniGem type={type} /></div>
+                        <span className="text-sm font-black text-amber-950 ml-1.5">{amt}</span>
                     </div>
                 ))}
             </div>
@@ -317,8 +315,9 @@
         };
 
         const TopPlayerStats = ({ player }) => (
-            <div className="flex gap-2 text-[10px] items-center">
-                <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50">
+            <div className="flex flex-col gap-1 w-full items-center">
+                {/* Gems Row */}
+                <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50 justify-center">
                     {GEM_TYPES.map(g => (
                         <div key={g} className="flex items-center gap-0.5">
                             <div className={`w-2.5 h-2.5 rounded-full ${GEM_STYLES[g].tokenGradient} border ${GEM_STYLES[g].tokenBorder} ${player.gems[g]>0?'shadow-sm':'opacity-30'}`}></div>
@@ -331,7 +330,8 @@
                     </div>
                 </div>
 
-                <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50">
+                {/* Cards Row */}
+                <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50 justify-center">
                     {GEM_TYPES.map(g => (
                          <div key={g} className="flex items-center gap-0.5">
                             <div className={`w-2.5 h-3 rounded-sm border ${GEM_STYLES[g].cardBorder} ${GEM_STYLES[g].cardBg} ${player.bonuses[g]>0?'shadow-sm':'opacity-30'}`}></div>
@@ -356,7 +356,7 @@
                             <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">玩家人数</label>
                             <div className="grid grid-cols-3 gap-3">
                                 {[2, 3, 4].map(n => (
-                                    <button key={n} onClick={() => setConfig({...config, playerCount: n, humanCount: Math.min(humanCount, n)})} 
+                                    <button key={n} onClick={() => setConfig({...config, playerCount: n, humanCount: n === 2 ? 2 : Math.min(humanCount, n)})} 
                                         className={`py-3 rounded-lg font-bold border transition-all relative overflow-hidden group ${playerCount === n ? 'bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700 hover:border-slate-600'}`}>
                                         <span className="relative z-10">{n} 人</span>
                                     </button>
@@ -422,7 +422,7 @@
         // --- 主游戏逻辑 ---
         function SplendorGame() {
           const [gameState, setGameState] = useState('setup');
-          const [setupConfig, setSetupConfig] = useState({ playerCount: 2, humanCount: 1, difficulty: 'normal', playerChar: 'judy' });
+          const [setupConfig, setSetupConfig] = useState({ playerCount: 2, humanCount: 2, difficulty: 'normal', playerChar: 'judy' });
           const [showConfig, setShowConfig] = useState(false);
           const [deck, setDeck] = useState(null);
           const [board, setBoard] = useState({ 1: [], 2: [], 3: [] });
@@ -704,22 +704,22 @@
               <div className="w-full bg-slate-900 z-50 shrink-0 safe-top-padding border-b border-slate-800"></div>
 
               {/* Header: 紧凑布局 */}
-              <div className="h-auto min-h-[3rem] py-1 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-2 lg:px-4 shadow-2xl z-40 shrink-0">
+              <div className="h-auto min-h-[4.5rem] py-1 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-2 lg:px-4 shadow-2xl z-40 shrink-0">
                  <div className="flex items-center gap-2 font-serif font-black text-xl tracking-wide bg-gradient-to-b from-amber-300 to-amber-600 bg-clip-text text-transparent shrink-0"><Crown size={24} strokeWidth={2.5} className="text-amber-500 animate-bounce"/> SPLENDOR</div>
                  
                  {/* Top Players: 使用 flex-1 和 overflow-hidden 防止溢出 */}
                  {topPlayers.length > 0 && (
                      <div className="flex-1 flex justify-center gap-2 lg:gap-4 px-2 overflow-hidden mx-2">
                         {topPlayers.map(p => (
-                            <div key={p.id} className={`flex flex-col items-start px-2 lg:px-3 py-1 rounded-lg border text-xs transition-all shrink min-w-0 ${p.id === currentPlayer.id ? 'bg-amber-900/50 border-amber-500 animate-pulse ring-1 ring-amber-500/50' : 'bg-slate-800 border-slate-700'}`}>
-                                <div className="flex items-center gap-2 w-full">
-                                    <div className="shrink-0">{p.isComputer ? <BotIcon size={18}/> : (p.character === 'nick'?<NickIcon size={18}/>:<JudyIcon size={18}/>)}</div> 
-                                    <div className="font-bold text-slate-300 flex items-center gap-1 truncate flex-1">
-                                        <span className="truncate">{p.name}</span>
-                                        <span className="text-yellow-500 font-black text-base shrink-0 ml-auto">{p.score}</span>
+                            <div key={p.id} className={`flex flex-col items-center px-2 py-1 rounded-lg border text-xs transition-all shrink-0 min-w-[150px] max-w-[240px] ${p.id === currentPlayer.id ? 'bg-amber-900/50 border-amber-500 animate-pulse ring-1 ring-amber-500/50' : 'bg-slate-800 border-slate-700'}`}>
+                                <div className="flex items-center gap-2 w-full mb-1">
+                                    <div className="shrink-0">{p.isComputer ? <BotIcon size={20}/> : (p.character === 'nick'?<NickIcon size={20}/>:<JudyIcon size={20}/>)}</div> 
+                                    <div className="font-bold text-slate-300 flex items-center gap-1 flex-1 truncate">
+                                        <span className="truncate text-sm">{p.name}</span>
                                     </div>
+                                    <span className="text-yellow-500 font-black text-lg shrink-0 ml-auto">{p.score}</span>
                                 </div>
-                                <div className="mt-1 w-full flex justify-center">
+                                <div className="w-full flex justify-center border-t border-white/10 pt-1 mt-0.5">
                                     <TopPlayerStats player={p} />
                                 </div>
                             </div>
@@ -733,10 +733,10 @@
               <div className="flex-1 flex flex-col overflow-hidden relative min-h-0">
                  <div className="flex-1 flex overflow-hidden min-h-0 relative">
                      {/* Left Sidebar: 贵族 (撑满高度) */}
-                     <div className="w-24 lg:w-28 xl:w-32 bg-[#0f172a] border-r border-slate-800 p-2 flex flex-col gap-2 z-10 shadow-xl shrink-0 h-full overflow-hidden">
+                     <div className="w-28 lg:w-32 xl:w-36 bg-[#0f172a] border-r border-slate-800 p-2 flex flex-col gap-2 z-10 shadow-xl shrink-0 h-full overflow-hidden">
                         <div className="text-amber-500 font-serif font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest flex items-center justify-center gap-1 w-full border-b border-amber-900/30 pb-1 shrink-0"><Crown size={12} /> 贵族</div>
-                        <div className="flex-1 flex flex-col gap-2 w-full h-full min-h-0 overflow-y-auto custom-scrollbar">
-                            {nobles.length > 0 ? nobles.map(n => <div key={n.id} className="flex-shrink-0"><NobleTile noble={n} /></div>) : (<div className="text-slate-600 italic text-xs py-2">贵族离场</div>)}
+                        <div className="flex-1 flex flex-col gap-3 w-full h-full min-h-0 overflow-y-auto custom-scrollbar pt-1">
+                            {nobles.length > 0 ? nobles.map(n => <div key={n.id} className="flex-shrink-0 flex-1 min-h-[90px]"><NobleTile noble={n} /></div>) : (<div className="text-slate-600 italic text-xs py-2">贵族离场</div>)}
                         </div>
                      </div>
 
@@ -862,10 +862,10 @@
 
                      // 多人模式标准布局
                      return (
-                      <div key={p.id} className={`flex transition-colors relative ${isActive ? 'bg-slate-900/50 -mt-[2px] z-10 box-content shadow-[inset_0_0_30px_rgba(245,158,11,0.1)]' : 'bg-[#0f172a]'} ${isSingleView ? 'col-span-2' : ''}`}>
+                      <div key={p.id} className={`flex transition-colors relative ${isActive ? 'bg-slate-900/50 -mt-[2px] z-10 box-content shadow-[inset_0_0_30px_rgba(245,158,11,0.1)]' : 'bg-[#0f172a]'} col-span-1`}>
                         {isActive && <div className="absolute top-0 left-0 w-full h-1 lg:h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(245,158,11,0.8)] z-20"></div>}
                         {isActive && <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md animate-pulse">当前回合</div>}
-                        <div className={`w-20 lg:w-24 xl:w-28 flex flex-col items-center justify-center p-1 border-r border-slate-800/50 gap-1 lg:gap-2 ${isSingleView ? 'pl-8' : ''}`}>
+                        <div className={`w-20 lg:w-24 xl:w-28 flex flex-col items-center justify-center p-1 border-r border-slate-800/50 gap-1 lg:gap-2 pl-8`}>
                            <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center border-2 shadow-lg transition-transform ${isActive ? 'bg-amber-600 border-amber-400 text-white scale-110' : 'bg-slate-800 border-slate-700 text-slate-500'} overflow-hidden`}>{p.isComputer ? <BotIcon size={18}/> : (p.character === 'nick'?<NickIcon size={18}/>:<JudyIcon size={18}/>)}</div>
                            <div className="text-center"><div className={`font-bold text-xs lg:text-sm leading-none mb-0.5 ${isActive ? 'text-white' : 'text-slate-500'}`}>{p.name}</div></div>
                            <div className="flex flex-col items-center bg-black/20 p-1 rounded-lg w-full"><div className="text-yellow-500 font-black text-lg lg:text-xl">{p.score}</div></div>
