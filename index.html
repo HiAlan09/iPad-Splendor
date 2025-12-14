@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Splendor">
     
-    <title>璀璨宝石 (Splendor) - 完整优化版</title>
+    <title>璀璨宝石 (Splendor) - iPad 完美适配版</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -15,13 +15,17 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        html, body { height: 100%; width: 100%; overflow: hidden; background-color: #0f172a; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        /* 使用 dvh 修复 iPad Safari 地址栏问题 */
+        html, body { height: 100dvh; width: 100vw; overflow: hidden; background-color: #0f172a; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         #root { height: 100%; width: 100%; display: flex; flex-direction: column; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+        
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+        
         .prevent-squish { flex-shrink: 0; }
-        /* Patterns */
+        
+        /* 纹理 */
         .pattern-dots { background-image: radial-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1.5px); background-size: 15px 15px; }
         .pattern-grid { background-image: linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 20px 20px; }
         .pattern-stripes { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 10px, transparent 10px, transparent 20px); }
@@ -31,15 +35,15 @@
         
         .text-stroke-black { -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8); text-shadow: 0 1px 2px rgba(0,0,0,0.8); paint-order: stroke fill; }
         
-        /* Animations */
+        /* 动画 */
         @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, -20px); } 10% { opacity: 1; transform: translate(-50%, 0); } 90% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -20px); } }
         .animate-notification { animation: fadeInOut 2s ease-in-out forwards; }
         @keyframes roll { 0% { transform: rotateX(0deg) rotateY(0deg); } 100% { transform: rotateX(720deg) rotateY(720deg); } }
         .dice-roll { animation: roll 0.5s ease-out; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .animate-float { animation: float 6s ease-in-out infinite; }
-        @keyframes glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
-        .animate-glow { animation: glow 3s ease-in-out infinite; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="bg-[#0f172a] text-slate-200">
@@ -48,34 +52,26 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- 1. 基础配置与图标组件 ---
+        // --- 1. 基础配置 ---
         const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
         const MARVEL_HEROES = ["钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"];
-        const CARD_SIZE_CLASSES = "w-20 h-28 sm:w-24 sm:h-32 lg:w-28 lg:h-40 xl:w-32 xl:h-44"; 
+        // 稍微减小高度以适应 iPad
+        const CARD_SIZE_CLASSES = "w-20 h-24 sm:w-24 sm:h-28 lg:w-28 lg:h-36 xl:w-32 xl:h-40"; 
         const POINTS_TO_WIN = 15;
         const MAX_GEMS = 10;
         const MAX_RESERVED = 3;
 
-        // --- SVG Icons Base ---
+        // --- 图标组件 ---
         const IconBase = ({ children, size = 24, className = "", ...props }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>);
         
-        // --- 统一头像组件 (Emoji 实现) ---
+        // Emoji 头像
         const EmojiAvatar = ({ emoji, size = 24, className = "" }) => (
-            <div 
-                className={`flex items-center justify-center select-none leading-none ${className}`} 
-                style={{ width: size, height: size, fontSize: typeof size === 'number' ? size * 0.75 : '1.5rem' }}
-            >
-                {emoji}
-            </div>
+            <div className={`flex items-center justify-center select-none leading-none ${className}`} style={{ width: size, height: size, fontSize: typeof size === 'number' ? size * 0.75 : '1.5rem' }}>{emoji}</div>
         );
-
-        // 使用 Emoji 替换原来的 SVG 路径
         const JudyIcon = (p) => <EmojiAvatar emoji="🐰" {...p} />;
         const NickIcon = (p) => <EmojiAvatar emoji="🦊" {...p} />;
         const BotIcon = (p) => <EmojiAvatar emoji="🤖" {...p} />;
-        // 通用用户图标 (备用)
-        const UserIcon = (p) => <IconBase {...p}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></IconBase>;
-
+        
         // 游戏 UI 图标
         const Crown = (p) => <IconBase {...p}><path d="m2 4 3 12h14l3-12-6 7-4-3-4 3-6-7zm5 16h10"/></IconBase>;
         const CrownFilled = (p) => <IconBase {...p} fill="currentColor" stroke="none"><path d="M2 4l3 12h14l3-12-6 7-4-3-4 3-6-7zm5 16h10"/></IconBase>;
@@ -87,8 +83,9 @@
         const X = (p) => <IconBase {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>;
         const AlertCircle = (p) => <IconBase {...p}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></IconBase>;
         const Undo2 = (p) => <IconBase {...p}><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></IconBase>;
-
-        // 宝石图标
+        const Settings = (p) => <IconBase {...p}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></IconBase>;
+        
+        // 宝石SVG
         const Diamond = (p) => <IconBase {...p}><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0l-7.59 7.59Z"/></IconBase>;
         const Hexagon = (p) => <IconBase {...p}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></IconBase>;
         const Square = (p) => <IconBase {...p}><rect width="18" height="18" x="3" y="3" rx="2" /></IconBase>;
@@ -96,7 +93,6 @@
         const Triangle = (p) => <IconBase {...p}><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3l-8-14z"/></IconBase>;
         const Sparkles = (p) => <IconBase {...p}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275-1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></IconBase>;
 
-        // --- 核心渲染组件 ---
         const GemIconSVG = ({ type, size = "100%", className = "" }) => {
           if (type === 'diamond') return <Diamond size={size} className={className} strokeWidth={2} />;
           if (type === 'emerald') return <Hexagon size={size} className={className} strokeWidth={2} />;
@@ -112,7 +108,6 @@
           return <div className={`w-2 h-2 rounded-full border ${colors[type]} shadow-sm`}></div>;
         };
 
-        // --- 2. 样式与数据 ---
         const GEM_STYLES = {
           emerald: { tokenGradient: 'bg-emerald-600', tokenBorder: 'border-emerald-400', cardBg: 'bg-emerald-900', cardBorder: 'border-emerald-500/50', patternClass: 'pattern-dots', accentColor: 'text-emerald-500', shapeFill: 'text-emerald-500/20', costBg: 'bg-emerald-700/80', costColor: 'bg-emerald-500', textColor: 'text-emerald-600', pointColor: 'text-white text-stroke-black', iconFill: 'fill-emerald-500 stroke-black stroke-[1.5px]', label: '时间宝石' },
           sapphire: { tokenGradient: 'bg-blue-600', tokenBorder: 'border-blue-400', cardBg: 'bg-blue-900', cardBorder: 'border-blue-500/50', patternClass: 'pattern-grid', accentColor: 'text-blue-500', shapeFill: 'text-blue-500/20', costBg: 'bg-blue-700/80', costColor: 'bg-blue-500', textColor: 'text-blue-600', pointColor: 'text-white text-stroke-black', iconFill: 'fill-blue-500 stroke-black stroke-[1.5px]', label: '空间宝石' },
@@ -135,7 +130,6 @@
         const generateDeck = () => ({ 1: shuffleArray(mapRealCards(REAL_CARDS_LV1, 1)), 2: shuffleArray(mapRealCards(REAL_CARDS_LV2, 2)), 3: shuffleArray(mapRealCards(REAL_CARDS_LV3, 3)) });
         const generateNobles = (count) => { const shuffledHeroes = shuffleArray([...MARVEL_HEROES]); const mapped = REAL_NOBLES.map((n, i) => ({ id: `noble-${i}`, points: n.points, req: mapCost(n.req), hero: shuffledHeroes[i % shuffledHeroes.length] })); return shuffleArray(mapped).slice(0, count); };
 
-        // --- 3. 业务组件 ---
         const GemToken = ({ type, size = 'md', className = "", count, showCount = true }) => {
           const sizeClasses = { sm: 'w-5 h-5 lg:w-6 lg:h-6', md: 'w-7 h-7 lg:w-9 lg:h-9', xl: 'w-10 h-10 lg:w-12 lg:h-12' };
           const style = GEM_STYLES[type];
@@ -249,7 +243,7 @@
                                     <div className="text-slate-300 font-bold text-sm">{p.name}</div>
                                     <div className={`w-16 h-16 lg:w-20 lg:h-20 bg-slate-700 rounded-xl flex items-center justify-center text-4xl font-black border-2 border-slate-600 ${rolling ? 'animate-bounce' : ''} transition-all ${winner === idx ? 'border-amber-500 bg-amber-900/50 scale-110' : ''}`}>
                                         {rolling ? '?' : (results[idx] || (
-                                            p.id === 0 ? <JudyIcon size={32}/> : 
+                                            p.id === 0 ? (p.character === 'nick' ? <NickIcon size={32}/> : <JudyIcon size={32}/>) : 
                                             p.id === 1 && !p.isComputer ? <NickIcon size={32}/> : 
                                             <BotIcon size={32}/>
                                         ))}
@@ -297,11 +291,8 @@
           );
         };
 
-        // --- 顶部玩家详细信息组件 (Optimized for space) ---
-        // 将数字显示在色块旁边或内部，单行显示
         const TopPlayerStats = ({ player }) => (
             <div className="flex gap-2 text-[10px] items-center">
-                {/* Gems */}
                 <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50">
                     {GEM_TYPES.map(g => (
                         <div key={g} className="flex items-center gap-0.5">
@@ -315,7 +306,6 @@
                     </div>
                 </div>
 
-                {/* Cards */}
                 <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50">
                     {GEM_TYPES.map(g => (
                          <div key={g} className="flex items-center gap-0.5">
@@ -327,10 +317,88 @@
             </div>
         );
 
+        // --- 游戏配置弹窗 ---
+        const ConfigModal = ({ config, setConfig, onStart, onClose }) => {
+            const { playerCount, humanCount, difficulty, playerChar } = config;
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+                    <div className="bg-slate-900/90 backdrop-blur-md p-8 rounded-2xl border border-amber-500/30 shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-md relative z-20 animate-slide-up">
+                        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white"><X size={24}/></button>
+                        <h2 className="text-center text-amber-500 font-bold mb-6 tracking-wider uppercase text-sm border-b border-amber-500/20 pb-2">游戏配置</h2>
+                        
+                        <div className="mb-6 space-y-3">
+                            <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">玩家人数</label>
+                            <div className="grid grid-cols-3 gap-3">
+                                {[2, 3, 4].map(n => (
+                                    <button key={n} onClick={() => setConfig({...config, playerCount: n, humanCount: Math.min(humanCount, n)})} 
+                                        className={`py-3 rounded-lg font-bold border transition-all relative overflow-hidden group ${playerCount === n ? 'bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700 hover:border-slate-600'}`}>
+                                        <span className="relative z-10">{n} 人</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mb-6 space-y-3">
+                             <div className="flex justify-between items-end">
+                                <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">人类玩家</label>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                {Array.from({length: Math.min(2, playerCount)}, (_, i) => i + 1).map(n => (
+                                    <button key={n} onClick={() => setConfig({...config, humanCount: n})} 
+                                        className={`py-3 rounded-lg font-bold border transition-all relative overflow-hidden ${humanCount === n ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}>
+                                        <div className="flex items-center justify-center gap-2 relative z-10">
+                                            <span>{n} 人类</span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* 角色选择：仅当 1 个因为玩家时显示 */}
+                        {humanCount === 1 && (
+                            <div className="mb-6 space-y-3">
+                                <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">选择你的角色</label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button onClick={() => setConfig({...config, playerChar: 'judy'})} 
+                                        className={`py-2 rounded-lg font-bold border transition-all flex items-center justify-center gap-2 ${playerChar === 'judy' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>
+                                        <JudyIcon size={24}/> 朱迪
+                                    </button>
+                                    <button onClick={() => setConfig({...config, playerChar: 'nick'})} 
+                                        className={`py-2 rounded-lg font-bold border transition-all flex items-center justify-center gap-2 ${playerChar === 'nick' ? 'bg-orange-600 border-orange-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-400'}`}>
+                                        <NickIcon size={24}/> 尼克
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {playerCount > humanCount && (
+                            <div className="mb-8 space-y-3">
+                                <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">AI 难度</label>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {['easy', 'normal', 'hard'].map(d => (
+                                        <button key={d} onClick={() => setConfig({...config, difficulty: d})} 
+                                            className={`py-2 rounded-lg font-bold border capitalize transition-all text-sm ${difficulty === d ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}>
+                                            {d === 'easy' ? '简单' : d === 'normal' ? '普通' : '困难'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <button onClick={onStart} className="w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 rounded-xl text-white font-black text-lg shadow-xl shadow-amber-900/40 transform transition-all active:scale-[0.98] relative overflow-hidden group">
+                            <span className="relative z-10 flex items-center justify-center gap-2">开始游戏 <Crown size={20} /></span>
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
         // --- 主游戏逻辑 ---
         function SplendorGame() {
           const [gameState, setGameState] = useState('setup');
-          const [setupConfig, setSetupConfig] = useState({ playerCount: 2, humanCount: 1, difficulty: 'normal' });
+          const [setupConfig, setSetupConfig] = useState({ playerCount: 2, humanCount: 1, difficulty: 'normal', playerChar: 'judy' });
+          const [showConfig, setShowConfig] = useState(false);
           const [deck, setDeck] = useState(null);
           const [board, setBoard] = useState({ 1: [], 2: [], 3: [] });
           const [nobles, setNobles] = useState([]);
@@ -511,7 +579,7 @@
           const endTurn = (finalPlayerState) => { if (finalPlayerState.score >= POINTS_TO_WIN) { showNotification(`🏆 ${finalPlayerState.name} 获胜！`, 'success'); setWinner(finalPlayerState); setTimeout(() => setGameState('end'), 2000); return; } setTurn(prev => prev + 1); setSelectedGems([]); };
 
           const startSetup = () => {
-             const { playerCount, humanCount } = setupConfig;
+             const { playerCount, humanCount, playerChar } = setupConfig;
              const gemCount = playerCount === 2 ? 4 : (playerCount === 3 ? 5 : 7);
              const nobleCount = playerCount + 1;
              
@@ -522,10 +590,21 @@
              setBank(initialBank); setDeck(newDeck); setNobles(newNobles); setBoard(newBoard);
              
              const newPlayers = [];
-             // Humans
-             if (humanCount >= 1) newPlayers.push({ id: 0, name: "Judy Hopps", isComputer: false, gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] });
-             if (humanCount >= 2) newPlayers.push({ id: 1, name: "Nick Wilde", isComputer: false, gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] });
              
+             // --- Player Generation Logic ---
+             if (humanCount === 1) {
+                 // Single Human (Choice)
+                 if (playerChar === 'nick') {
+                     newPlayers.push({ id: 0, name: "Nick Wilde", character: 'nick', isComputer: false, gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] });
+                 } else {
+                     newPlayers.push({ id: 0, name: "Judy Hopps", character: 'judy', isComputer: false, gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] });
+                 }
+             } else {
+                 // 2 Humans (Default)
+                 newPlayers.push({ id: 0, name: "Judy Hopps", character: 'judy', isComputer: false, gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] });
+                 newPlayers.push({ id: 1, name: "Nick Wilde", character: 'nick', isComputer: false, gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] });
+             }
+
              // Computers
              const botNames = ["Flash", "Chief Bogo", "Clawhauser"];
              let botIdx = 0;
@@ -535,9 +614,11 @@
 
              setPlayers(newPlayers);
              setGameState('diceroll');
+             setShowConfig(false);
           };
           const handleDiceFinish = (winnerIdx) => { setTurn(winnerIdx); setLogs(["游戏开始！"]); setSelectedGems([]); setWinner(null); setHistory([]); setGameState('playing'); };
 
+          // --- 首页视图 (简化版) ---
           if (gameState === 'setup') {
               return (
                 <div className="h-full w-full flex flex-col items-center justify-center bg-[#0f172a] text-white p-4 relative overflow-hidden pattern-hex">
@@ -556,61 +637,25 @@
                         </h2>
                     </div>
 
-                    <div className="bg-slate-900/80 backdrop-blur-md p-8 rounded-2xl border border-amber-500/30 shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-md relative z-20">
-                        <h2 className="text-center text-amber-500 font-bold mb-6 tracking-wider uppercase text-sm border-b border-amber-500/20 pb-2">游戏配置</h2>
-                        
-                        <div className="mb-6 space-y-3">
-                            <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">玩家人数</label>
-                            <div className="grid grid-cols-3 gap-3">
-                                {[2, 3, 4].map(n => (
-                                    <button key={n} onClick={() => setSetupConfig({...setupConfig, playerCount: n, humanCount: Math.min(setupConfig.humanCount, 2)})} 
-                                        className={`py-3 rounded-lg font-bold border transition-all relative overflow-hidden group ${setupConfig.playerCount === n ? 'bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700 hover:border-slate-600'}`}>
-                                        <span className="relative z-10">{n} 人</span>
-                                        {setupConfig.playerCount === n && <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="mb-6 space-y-3">
-                             <div className="flex justify-between items-end">
-                                <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">玩家角色</label>
-                                <span className="text-[10px] text-amber-500/80 font-mono">{setupConfig.humanCount === 1 ? "朱迪 vs 电脑" : "朱迪 & 尼克 vs 电脑"}</span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                {Array.from({length: Math.min(2, setupConfig.playerCount)}, (_, i) => i + 1).map(n => (
-                                    <button key={n} onClick={() => setSetupConfig({...setupConfig, humanCount: n})} 
-                                        className={`py-3 rounded-lg font-bold border transition-all relative overflow-hidden ${setupConfig.humanCount === n ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}>
-                                        <div className="flex items-center justify-center gap-2 relative z-10">
-                                            {n === 1 ? <JudyIcon size={20}/> : <div className="flex -space-x-2"><JudyIcon size={20}/><NickIcon size={20}/></div>}
-                                            <span>{n} 人类</span>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {setupConfig.playerCount > setupConfig.humanCount && (
-                            <div className="mb-8 space-y-3">
-                                <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">AI 难度</label>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {['easy', 'normal', 'hard'].map(d => (
-                                        <button key={d} onClick={() => setSetupConfig({...setupConfig, difficulty: d})} 
-                                            className={`py-2 rounded-lg font-bold border capitalize transition-all text-sm ${setupConfig.difficulty === d ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}>
-                                            {d === 'easy' ? '简单' : d === 'normal' ? '普通' : '困难'}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        <button onClick={startSetup} className="w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 rounded-xl text-white font-black text-lg shadow-xl shadow-amber-900/40 transform transition-all active:scale-[0.98] relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                            <span className="relative z-10 flex items-center justify-center gap-2">开始游戏 <Crown size={20} /></span>
+                    <div className="relative z-20 mt-8">
+                        <button 
+                            onClick={() => setShowConfig(true)}
+                            className="px-12 py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 rounded-full text-white font-black text-xl shadow-[0_0_30px_rgba(245,158,11,0.4)] transform transition-all hover:scale-105 active:scale-95 border-2 border-amber-300/30"
+                        >
+                            开始游戏
                         </button>
                     </div>
                     
                     <div className="absolute bottom-4 text-slate-600 text-xs font-mono">Designed for iPad Pro</div>
+
+                    {showConfig && (
+                        <ConfigModal 
+                            config={setupConfig} 
+                            setConfig={setSetupConfig} 
+                            onStart={startSetup} 
+                            onClose={() => setShowConfig(false)} 
+                        />
+                    )}
                 </div>
               );
           }
@@ -631,7 +676,7 @@
               {notification && <Notification msg={notification} type={notifType} />}
               <div className="h-12 lg:h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 lg:px-6 shadow-2xl z-40 shrink-0">
                  <div className="flex items-center gap-2 font-serif font-black text-2xl tracking-wide bg-gradient-to-b from-amber-300 to-amber-600 bg-clip-text text-transparent"><Crown size={28} strokeWidth={2.5} className="text-amber-500 animate-bounce"/> SPLENDOR</div>
-                 {topPlayers.length > 0 && (<div className="flex-1 flex justify-center gap-6 px-4 overflow-x-auto">{topPlayers.map(p => (<div key={p.id} className={`flex items-center gap-3 px-3 py-1.5 rounded-full border text-xs transition-all ${p.id === currentPlayer.id ? 'bg-amber-900/50 border-amber-500 animate-pulse ring-1 ring-amber-500/50' : 'bg-slate-800 border-slate-700'}`}>{p.isComputer ? <BotIcon size={20}/> : (p.id===0?<JudyIcon size={20}/>:<NickIcon size={20}/>)} <div><div className="font-bold text-slate-300 flex items-center gap-2 mb-0.5"><span className="text-sm">{p.name}</span><span className="text-yellow-500 font-black text-base">{p.score}</span></div><TopPlayerStats player={p} /></div></div>))}</div>)}
+                 {topPlayers.length > 0 && (<div className="flex-1 flex justify-center gap-6 px-4 overflow-x-auto">{topPlayers.map(p => (<div key={p.id} className={`flex items-center gap-3 px-3 py-1.5 rounded-full border text-xs transition-all ${p.id === currentPlayer.id ? 'bg-amber-900/50 border-amber-500 animate-pulse ring-1 ring-amber-500/50' : 'bg-slate-800 border-slate-700'}`}>{p.isComputer ? <BotIcon size={20}/> : (p.character === 'nick'?<NickIcon size={20}/>:<JudyIcon size={20}/>)} <div><div className="font-bold text-slate-300 flex items-center gap-2 mb-0.5"><span className="text-sm">{p.name}</span><span className="text-yellow-500 font-black text-base">{p.score}</span></div><TopPlayerStats player={p} /></div></div>))}</div>)}
                  <div className="flex gap-2"><button onClick={undo} disabled={history.length === 0 || !isHumanTurn} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors border border-slate-700 text-xs lg:text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"><Undo2 size={14}/><span>撤销</span></button><button onClick={() => setGameState('setup')} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors border border-slate-700 text-xs lg:text-sm font-bold"><RotateCcw size={14}/><span>重置</span></button></div>
               </div>
               <div className="flex-1 flex overflow-hidden relative">
@@ -644,7 +689,7 @@
                  <div className="flex-1 flex flex-col items-center justify-between relative z-0 overflow-hidden bg-[#0f172a] h-full">
                     {isReserving && <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-yellow-500/90 text-black px-4 py-1 rounded-full font-bold text-sm shadow-lg z-30 animate-bounce pointer-events-none">请选择一张卡片进行预留</div>}
                     <div className="w-full h-full flex flex-col items-center justify-evenly py-2 lg:py-4">
-                        {[3, 2, 1].map(level => (<div key={level} className="flex gap-1.5 lg:gap-3 xl:gap-6 justify-center items-center w-full px-1 lg:px-2"><div className={`prevent-squish ${CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl border-2 flex flex-col items-center justify-center shadow-xl relative shrink-0 ${LEVEL_CONFIG[level].bg} ${LEVEL_CONFIG[level].borderColor}`}><div className={`text-3xl lg:text-4xl font-serif font-black ${LEVEL_CONFIG[level].dotColor}`}>{Array(level).fill('●').join('')}</div><div className="mt-1 text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Deck</div><div className="text-xs lg:text-sm font-bold text-white">{deck[level].length}</div></div>{board[level].map(card => (<Card key={card.id} card={card} canBuy={gameState === 'playing' && canAfford(currentPlayer, card)} isReserving={isReserving} onBuy={handleCardInteraction} />))}{Array(4 - board[level].length).fill(0).map((_, i) => (<div key={i} className={`prevent-squish ${CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl border-2 border-dashed border-slate-700 bg-slate-800/30 shrink-0`}></div>))}</div>))}
+                        {[3, 2, 1].map(level => (<div key={level} className="flex gap-1.5 lg:gap-3 xl:gap-6 justify-center items-center w-full px-1 lg:px-2 min-h-0"><div className={`prevent-squish ${CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl border-2 flex flex-col items-center justify-center shadow-xl relative shrink-0 ${LEVEL_CONFIG[level].bg} ${LEVEL_CONFIG[level].borderColor}`}><div className={`text-3xl lg:text-4xl font-serif font-black ${LEVEL_CONFIG[level].dotColor}`}>{Array(level).fill('●').join('')}</div><div className="mt-1 text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Deck</div><div className="text-xs lg:text-sm font-bold text-white">{deck[level].length}</div></div>{board[level].map(card => (<Card key={card.id} card={card} canBuy={gameState === 'playing' && canAfford(currentPlayer, card)} isReserving={isReserving} onBuy={handleCardInteraction} />))}{Array(4 - board[level].length).fill(0).map((_, i) => (<div key={i} className={`prevent-squish ${CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl border-2 border-dashed border-slate-700 bg-slate-800/30 shrink-0`}></div>))}</div>))}
                     </div>
                  </div>
                  <div className="w-32 lg:w-36 xl:w-40 bg-[#0f172a] border-l border-slate-800 p-2 lg:p-3 flex flex-col gap-1 z-10 shadow-xl shrink-0 h-full overflow-y-auto custom-scrollbar">
@@ -666,7 +711,7 @@
                         {isActive && <div className="absolute top-0 left-0 w-full h-1 lg:h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(245,158,11,0.8)] z-20"></div>}
                         {isActive && <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md animate-pulse">当前回合</div>}
                         <div className={`w-20 lg:w-24 xl:w-28 flex flex-col items-center justify-center p-1 border-r border-slate-800/50 gap-1 lg:gap-2 ${isSingleView ? 'pl-8' : ''}`}>
-                           <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center border-2 shadow-lg transition-transform ${isActive ? 'bg-amber-600 border-amber-400 text-white scale-110' : 'bg-slate-800 border-slate-700 text-slate-500'} overflow-hidden`}>{p.isComputer ? <BotIcon size={18}/> : (p.id===0?<JudyIcon size={18}/>:(p.id===1?<NickIcon size={18}/>:<UserIcon size={18}/>))}</div>
+                           <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center border-2 shadow-lg transition-transform ${isActive ? 'bg-amber-600 border-amber-400 text-white scale-110' : 'bg-slate-800 border-slate-700 text-slate-500'} overflow-hidden`}>{p.isComputer ? <BotIcon size={18}/> : (p.character === 'nick'?<NickIcon size={18}/>:<JudyIcon size={18}/>)}</div>
                            <div className="text-center"><div className={`font-bold text-xs lg:text-sm leading-none mb-0.5 ${isActive ? 'text-white' : 'text-slate-500'}`}>{p.name}</div></div>
                            <div className="flex flex-col items-center bg-black/20 p-1 rounded-lg w-full"><div className="text-yellow-500 font-black text-lg lg:text-xl">{p.score}</div></div>
                         </div>
