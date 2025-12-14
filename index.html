@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Splendor">
     
-    <title>璀璨宝石 (Splendor) - iPad 终极优化版 V7</title>
+    <title>璀璨宝石 (Splendor) - iPad 终极优化版 V8</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -63,8 +63,8 @@
         const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
         const MARVEL_HEROES = ["钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"];
         
-        // 大幅增加卡牌尺寸，减少空白
-        const CARD_SIZE_CLASSES = "w-28 h-36 sm:w-32 sm:h-44 md:w-36 md:h-48 lg:w-40 lg:h-56 xl:w-44 xl:h-60"; 
+        // 进一步放大卡牌尺寸 (填充中间空白区域)
+        const CARD_SIZE_CLASSES = "w-32 h-44 sm:w-36 sm:h-52 md:w-40 md:h-56 lg:w-44 lg:h-60 xl:w-48 xl:h-64"; 
         
         const POINTS_TO_WIN = 15;
         const MAX_GEMS = 10;
@@ -314,28 +314,29 @@
           );
         };
 
+        // TopPlayerStats: 优化电脑玩家信息显示，强制双行
         const TopPlayerStats = ({ player }) => (
             <div className="flex flex-col gap-1 w-full items-center">
-                {/* Gems Row */}
-                <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50 justify-center">
+                {/* 第一行：宝石资源 */}
+                <div className="flex gap-0.5 bg-slate-900/50 px-1 py-0.5 rounded-lg border border-slate-700/50 justify-center">
                     {GEM_TYPES.map(g => (
-                        <div key={g} className="flex items-center gap-0.5">
-                            <div className={`w-2.5 h-2.5 rounded-full ${GEM_STYLES[g].tokenGradient} border ${GEM_STYLES[g].tokenBorder} ${player.gems[g]>0?'shadow-sm':'opacity-30'}`}></div>
-                            <span className={`text-[9px] font-bold ${player.gems[g]>0?'text-white':'text-slate-600'}`}>{player.gems[g]}</span>
+                        <div key={g} className="flex items-center">
+                            <div className={`w-2 h-2 rounded-full ${GEM_STYLES[g].tokenGradient} border ${GEM_STYLES[g].tokenBorder} ${player.gems[g]>0?'shadow-sm':'opacity-30'}`}></div>
+                            <span className={`text-[9px] font-bold ml-0.5 ${player.gems[g]>0?'text-white':'text-slate-600'}`}>{player.gems[g]}</span>
                         </div>
                     ))}
-                    <div className="flex items-center gap-0.5 pl-1 border-l border-slate-700/50">
-                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 border border-yellow-200"></div>
-                        <span className={`text-[9px] font-bold ${player.gems.gold>0?'text-yellow-500':'text-slate-600'}`}>{player.gems.gold}</span>
+                    <div className="flex items-center border-l border-slate-700/50 pl-0.5 ml-0.5">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500 border border-yellow-200"></div>
+                        <span className={`text-[9px] font-bold ml-0.5 ${player.gems.gold>0?'text-yellow-500':'text-slate-600'}`}>{player.gems.gold}</span>
                     </div>
                 </div>
 
-                {/* Cards Row */}
-                <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50 justify-center">
+                {/* 第二行：卡牌奖励 */}
+                <div className="flex gap-0.5 bg-slate-900/50 px-1 py-0.5 rounded-lg border border-slate-700/50 justify-center">
                     {GEM_TYPES.map(g => (
-                         <div key={g} className="flex items-center gap-0.5">
-                            <div className={`w-2.5 h-3 rounded-sm border ${GEM_STYLES[g].cardBorder} ${GEM_STYLES[g].cardBg} ${player.bonuses[g]>0?'shadow-sm':'opacity-30'}`}></div>
-                            <span className={`text-[9px] font-bold ${player.bonuses[g]>0?'text-white':'text-slate-600'}`}>{player.bonuses[g]}</span>
+                         <div key={g} className="flex items-center">
+                            <div className={`w-2 h-2.5 rounded-sm border ${GEM_STYLES[g].cardBorder} ${GEM_STYLES[g].cardBg} ${player.bonuses[g]>0?'shadow-sm':'opacity-30'}`}></div>
+                            <span className={`text-[9px] font-bold ml-0.5 ${player.bonuses[g]>0?'text-white':'text-slate-600'}`}>{player.bonuses[g]}</span>
                         </div>
                     ))}
                 </div>
@@ -356,7 +357,7 @@
                             <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">玩家人数</label>
                             <div className="grid grid-cols-3 gap-3">
                                 {[2, 3, 4].map(n => (
-                                    <button key={n} onClick={() => setConfig({...config, playerCount: n, humanCount: n === 2 ? 2 : Math.min(humanCount, n)})} 
+                                    <button key={n} onClick={() => setConfig({...config, playerCount: n, humanCount: Math.min(humanCount, n)})} 
                                         className={`py-3 rounded-lg font-bold border transition-all relative overflow-hidden group ${playerCount === n ? 'bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700 hover:border-slate-600'}`}>
                                         <span className="relative z-10">{n} 人</span>
                                     </button>
@@ -422,7 +423,7 @@
         // --- 主游戏逻辑 ---
         function SplendorGame() {
           const [gameState, setGameState] = useState('setup');
-          const [setupConfig, setSetupConfig] = useState({ playerCount: 2, humanCount: 2, difficulty: 'normal', playerChar: 'judy' });
+          const [setupConfig, setSetupConfig] = useState({ playerCount: 2, humanCount: 1, difficulty: 'normal', playerChar: 'judy' });
           const [showConfig, setShowConfig] = useState(false);
           const [deck, setDeck] = useState(null);
           const [board, setBoard] = useState({ 1: [], 2: [], 3: [] });
@@ -735,7 +736,7 @@
                      {/* Left Sidebar: 贵族 (撑满高度) */}
                      <div className="w-28 lg:w-32 xl:w-36 bg-[#0f172a] border-r border-slate-800 p-2 flex flex-col gap-2 z-10 shadow-xl shrink-0 h-full overflow-hidden">
                         <div className="text-amber-500 font-serif font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest flex items-center justify-center gap-1 w-full border-b border-amber-900/30 pb-1 shrink-0"><Crown size={12} /> 贵族</div>
-                        <div className="flex-1 flex flex-col gap-1 w-full h-full min-h-0 overflow-y-auto custom-scrollbar pt-1">
+                        <div className="flex-1 flex flex-col gap-3 w-full h-full min-h-0 overflow-y-auto custom-scrollbar pt-1">
                             {nobles.length > 0 ? nobles.map(n => <div key={n.id} className="flex-shrink-0 flex-1 min-h-[90px]"><NobleTile noble={n} /></div>) : (<div className="text-slate-600 italic text-xs py-2">贵族离场</div>)}
                         </div>
                      </div>
