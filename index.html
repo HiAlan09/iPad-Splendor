@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Splendor">
     
-    <title>璀璨宝石 (Splendor)</title>
+    <title>璀璨宝石 (Splendor) - 完整优化版</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -15,67 +15,31 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            background-color: #0f172a;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-            touch-action: none;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        
-        #root {
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
-        }
-
+        html, body { height: 100%; width: 100%; overflow: hidden; background-color: #0f172a; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        #root { height: 100%; width: 100%; display: flex; flex-direction: column; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
         .prevent-squish { flex-shrink: 0; }
-
-        /* 卡牌纹理 */
-        .pattern-stripes { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 10px, transparent 10px, transparent 20px); }
+        /* Patterns */
         .pattern-dots { background-image: radial-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1.5px); background-size: 15px 15px; }
         .pattern-grid { background-image: linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 20px 20px; }
+        .pattern-stripes { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 10px, transparent 10px, transparent 20px); }
         .pattern-checkers { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.08) 75%, rgba(255,255,255,0.08)), repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.08) 75%, rgba(255,255,255,0.08)); background-position: 0 0, 10px 10px; background-size: 20px 20px; }
         .pattern-radial-dark { background-image: radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, transparent 70%); }
-
-        /* 文字描边效果 */
-        .text-stroke-black {
-            -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-            paint-order: stroke fill;
-        }
-        .text-stroke-black-strong {
-            -webkit-text-stroke: 2px rgba(0, 0, 0, 0.8);
-            text-shadow: 0 1px 2px rgba(0,0,0,1);
-            paint-order: stroke fill;
-        }
+        .pattern-hex { background-color: #0f172a; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%231e293b' fill-opacity='0.4' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-7.5l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
         
-        /* 动画 */
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -20px); }
-            10% { opacity: 1; transform: translate(-50%, 0); }
-            90% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, -20px); }
-        }
-        .animate-notification {
-            animation: fadeInOut 3s ease-in-out forwards;
-        }
+        .text-stroke-black { -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8); text-shadow: 0 1px 2px rgba(0,0,0,0.8); paint-order: stroke fill; }
         
-        @keyframes roll {
-            0% { transform: rotateX(0deg) rotateY(0deg); }
-            100% { transform: rotateX(720deg) rotateY(720deg); }
-        }
+        /* Animations */
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, -20px); } 10% { opacity: 1; transform: translate(-50%, 0); } 90% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -20px); } }
+        .animate-notification { animation: fadeInOut 2s ease-in-out forwards; }
+        @keyframes roll { 0% { transform: rotateX(0deg) rotateY(0deg); } 100% { transform: rotateX(720deg) rotateY(720deg); } }
         .dice-roll { animation: roll 0.5s ease-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        @keyframes glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
+        .animate-glow { animation: glow 3s ease-in-out infinite; }
     </style>
 </head>
 <body class="bg-[#0f172a] text-slate-200">
@@ -84,16 +48,38 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- 尺寸常量 ---
-        const CARD_SIZE_CLASSES = "w-20 h-28 sm:w-24 sm:h-32 lg:w-28 lg:h-40 xl:w-36 xl:h-52";
+        // --- 1. 基础配置与图标组件 ---
+        const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
+        const MARVEL_HEROES = ["钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"];
+        const CARD_SIZE_CLASSES = "w-20 h-28 sm:w-24 sm:h-32 lg:w-28 lg:h-40 xl:w-32 xl:h-44"; 
+        const POINTS_TO_WIN = 15;
+        const MAX_GEMS = 10;
+        const MAX_RESERVED = 3;
 
-        // --- 图标组件 ---
-        const IconBase = ({ children, size = 24, className = "", ...props }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
+        // --- SVG Icons Base ---
+        const IconBase = ({ children, size = 24, className = "", ...props }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>);
+        
+        // --- 统一头像组件 (Emoji 实现) ---
+        const EmojiAvatar = ({ emoji, size = 24, className = "" }) => (
+            <div 
+                className={`flex items-center justify-center select-none leading-none ${className}`} 
+                style={{ width: size, height: size, fontSize: typeof size === 'number' ? size * 0.75 : '1.5rem' }}
+            >
+                {emoji}
+            </div>
         );
+
+        // 使用 Emoji 替换原来的 SVG 路径
+        const JudyIcon = (p) => <EmojiAvatar emoji="🐰" {...p} />;
+        const NickIcon = (p) => <EmojiAvatar emoji="🦊" {...p} />;
+        const BotIcon = (p) => <EmojiAvatar emoji="🤖" {...p} />;
+        // 通用用户图标 (备用)
+        const UserIcon = (p) => <IconBase {...p}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></IconBase>;
+
+        // 游戏 UI 图标
         const Crown = (p) => <IconBase {...p}><path d="m2 4 3 12h14l3-12-6 7-4-3-4 3-6-7zm5 16h10"/></IconBase>;
+        const CrownFilled = (p) => <IconBase {...p} fill="currentColor" stroke="none"><path d="M2 4l3 12h14l3-12-6 7-4-3-4 3-6-7zm5 16h10"/></IconBase>;
         const RotateCcw = (p) => <IconBase {...p}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></IconBase>;
-        const User = (p) => <IconBase {...p}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></IconBase>;
         const Lock = (p) => <IconBase {...p}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></IconBase>;
         const ScrollText = (p) => <IconBase {...p}><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></IconBase>;
         const Grip = (p) => <IconBase {...p}><circle cx="12" cy="5" r="1"/><circle cx="19" cy="5" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="19" cy="19" r="1"/><circle cx="5" cy="19" r="1"/></IconBase>;
@@ -101,8 +87,8 @@
         const X = (p) => <IconBase {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>;
         const AlertCircle = (p) => <IconBase {...p}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></IconBase>;
         const Undo2 = (p) => <IconBase {...p}><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></IconBase>;
-        const Dices = (p) => <IconBase {...p}><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/></IconBase>;
 
+        // 宝石图标
         const Diamond = (p) => <IconBase {...p}><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0l-7.59 7.59Z"/></IconBase>;
         const Hexagon = (p) => <IconBase {...p}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></IconBase>;
         const Square = (p) => <IconBase {...p}><rect width="18" height="18" x="3" y="3" rx="2" /></IconBase>;
@@ -110,160 +96,7 @@
         const Triangle = (p) => <IconBase {...p}><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3l-8-14z"/></IconBase>;
         const Sparkles = (p) => <IconBase {...p}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275-1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></IconBase>;
 
-        // --- 样式配置 ---
-        const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
-
-        // 漫威英雄列表
-        const MARVEL_HEROES = [
-            "钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", 
-            "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", 
-            "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"
-        ];
-
-        // 使用图片代理以解决防盗链问题
-        const AVATARS = {
-            judy: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/en/6/6f/Judy_Hopps.png",
-            nick: "https://wsrv.nl/?url=https://upload.wikimedia.org/wikipedia/en/e/ea/Nick_Wilde.png"
-        };
-
-        const GEM_STYLES = {
-          emerald: { 
-            tokenGradient: 'bg-emerald-600', tokenBorder: 'border-emerald-400',
-            cardBg: 'bg-emerald-900', cardBorder: 'border-emerald-500/50',
-            patternClass: 'pattern-dots', accentColor: 'text-emerald-500', shapeFill: 'text-emerald-500/20',
-            costBg: 'bg-emerald-700/80', costColor: 'bg-emerald-500', textColor: 'text-emerald-600',
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-emerald-500 stroke-black stroke-[1.5px]',
-            label: '时间宝石' 
-          },
-          sapphire: { 
-            tokenGradient: 'bg-blue-600', tokenBorder: 'border-blue-400',
-            cardBg: 'bg-blue-900', cardBorder: 'border-blue-500/50',
-            patternClass: 'pattern-grid', accentColor: 'text-blue-500', shapeFill: 'text-blue-500/20',
-            costBg: 'bg-blue-700/80', costColor: 'bg-blue-500', textColor: 'text-blue-600',
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-blue-500 stroke-black stroke-[1.5px]',
-            label: '空间宝石' 
-          },
-          ruby: { 
-            tokenGradient: 'bg-red-600', tokenBorder: 'border-red-400',
-            cardBg: 'bg-rose-900', cardBorder: 'border-red-500/50',
-            patternClass: 'pattern-stripes', accentColor: 'text-rose-500', shapeFill: 'text-rose-500/20',
-            costBg: 'bg-rose-700/80', costColor: 'bg-rose-500', textColor: 'text-rose-600',
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-rose-500 stroke-black stroke-[1.5px]',
-            label: '现实宝石' 
-          },
-          diamond: { 
-            tokenGradient: 'bg-slate-300', tokenBorder: 'border-white',
-            cardBg: 'bg-slate-200', cardBorder: 'border-white/80',
-            patternClass: 'pattern-radial-dark', accentColor: 'text-slate-500', shapeFill: 'text-black/10',
-            // 调整Cost背景颜色
-            costBg: 'bg-slate-300/90', costColor: 'bg-slate-200', textColor: 'text-slate-600',
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-slate-50 stroke-slate-600 stroke-[1.5px]',
-            label: '灵魂宝石' 
-          },
-          onyx: { 
-            tokenGradient: 'bg-zinc-700', tokenBorder: 'border-zinc-500',
-            cardBg: 'bg-zinc-700', cardBorder: 'border-zinc-400/50',
-            patternClass: 'pattern-checkers', accentColor: 'text-zinc-400', shapeFill: 'text-white/10',
-            costBg: 'bg-zinc-600/90', costColor: 'bg-zinc-500', textColor: 'text-stone-800',
-            pointColor: 'text-white text-stroke-black',
-            iconFill: 'fill-zinc-800 stroke-black stroke-[1.5px]',
-            label: '力量宝石' 
-          },
-          gold: { 
-            tokenGradient: 'bg-yellow-500', tokenBorder: 'border-yellow-200',
-            textColor: 'text-amber-600',
-            label: '心灵宝石' 
-          },
-        };
-
-        const LEVEL_CONFIG = {
-          1: { dotColor: 'text-emerald-400', borderColor: 'border-emerald-500/30', bg: 'bg-emerald-900/20' },
-          2: { dotColor: 'text-yellow-400', borderColor: 'border-yellow-500/30', bg: 'bg-yellow-900/20' },
-          3: { dotColor: 'text-blue-400', borderColor: 'border-blue-500/30', bg: 'bg-blue-900/20' },
-        };
-
-        const POINTS_TO_WIN = 15;
-        const MAX_GEMS = 10;
-        const MAX_RESERVED = 3;
-
-        // --- 真实卡牌数据 ---
-        const REAL_CARDS_LV1 = [
-            [0,0,{1:1,2:1,3:1,4:1}], [0,0,{1:1,2:2,3:1,4:1}], [0,0,{1:2,2:2,4:1}], [0,0,{0:1,1:3,2:1}], [0,0,{2:1,4:2}], [0,0,{0:2,4:2}], [0,0,{0:3}], [1,0,{1:4}],
-            [0,1,{0:1,2:1,3:1,4:1}], [0,1,{0:1,2:2,3:1,4:1}], [0,1,{0:1,2:2,3:2}], [0,1,{2:1,3:3,4:1}], [0,1,{2:2,3:1}], [0,1,{0:2,2:2}], [0,1,{1:3}], [1,1,{2:4}],
-            [0,2,{0:1,1:1,3:1,4:1}], [0,2,{0:1,1:2,3:1,4:1}], [0,2,{0:1,1:1,3:2,4:1}], [0,2,{0:3,1:1,4:1}], [0,2,{0:2,1:1}], [0,2,{1:2,3:2}], [0,2,{2:3}], [1,2,{4:4}],
-            [0,3,{0:1,1:1,2:1,4:1}], [0,3,{0:1,1:1,2:2,4:1}], [0,3,{0:1,1:2,2:2}], [0,3,{0:1,1:1,2:3}], [0,3,{0:2,4:1}], [0,3,{0:2,1:2}], [0,3,{3:3}], [1,3,{0:4}],
-            [0,4,{0:1,1:1,2:1,3:1}], [0,4,{0:1,1:1,2:1,3:2}], [0,4,{0:1,1:2,2:1,3:1}], [0,4,{0:1,2:1,3:3}], [0,4,{1:2,2:1}], [0,4,{2:2,3:2}], [0,4,{4:3}], [1,4,{3:4}]
-        ];
-        const REAL_CARDS_LV2 = [
-            [1,0,{0:2,1:3,2:3}], [1,0,{0:2,1:2,2:3}], [2,0,{1:5}], [2,0,{0:4,2:1,4:2}], [2,0,{1:5,2:3}], [3,0,{3:6}],
-            [1,1,{1:2,2:3,3:3}], [1,1,{0:2,1:2,2:3}], [2,1,{2:5}], [2,1,{0:2,1:1,3:4}], [2,1,{2:5,3:3}], [3,1,{2:6}],
-            [1,2,{2:2,3:3,4:3}], [1,2,{2:2,3:2,4:3}], [2,2,{4:5}], [2,2,{0:4,3:2,4:1}], [2,2,{0:3,4:5}], [3,2,{0:6}],
-            [1,3,{0:3,1:3,2:2}], [1,3,{0:3,1:3,4:2}], [2,3,{0:5}], [2,3,{0:1,1:4,2:2}], [2,3,{0:5,1:3}], [3,3,{1:6}],
-            [1,4,{0:3,1:2,2:3}], [1,4,{0:3,3:3,4:2}], [2,4,{3:5}], [2,4,{1:1,2:4,3:2}], [2,4,{3:5,4:3}], [3,4,{4:6}]
-        ];
-        const REAL_CARDS_LV3 = [
-            [3,0,{0:3,1:3,2:5,3:3}], [4,0,{3:7}], [4,0,{0:3,1:6,2:3}], [5,0,{0:3,1:7}],
-            [3,1,{0:3,1:3,2:3,4:5}], [4,1,{4:7}], [4,1,{0:3,1:3,2:6}], [5,1,{1:3,2:7}],
-            [3,2,{0:5,1:3,2:3,4:3}], [4,2,{0:7}], [4,2,{0:6,1:3,4:3}], [5,2,{2:3,3:7}],
-            [3,3,{0:3,2:3,3:3,4:5}], [4,3,{1:7}], [4,3,{0:3,3:6,4:3}], [5,3,{0:7,3:3}],
-            [3,4,{0:3,1:5,3:3,4:3}], [4,4,{2:7}], [4,4,{1:3,2:3,4:6}], [5,4,{2:7,4:3}]
-        ];
-        const REAL_NOBLES = [
-            {points:3, req:{0:4, 1:4}}, {points:3, req:{0:4, 2:4}}, {points:3, req:{0:4, 3:4}}, {points:3, req:{0:4, 4:4}},
-            {points:3, req:{1:4, 2:4}}, {points:3, req:{1:4, 3:4}}, {points:3, req:{1:4, 4:4}},
-            {points:3, req:{2:4, 3:4}}, {points:3, req:{2:4, 4:4}}, {points:3, req:{3:4, 4:4}},
-            {points:3, req:{0:3, 2:3, 3:3}}, {points:3, req:{0:3, 1:3, 4:3}}
-        ];
-
-        // --- 逻辑函数 ---
-        const shuffleArray = (array) => {
-            const arr = [...array];
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        };
-
-        const mapCost = (costObj) => {
-            const res = {};
-            for(let k in costObj) res[GEM_TYPES[k]] = costObj[k];
-            return res;
-        };
-
-        const mapRealCards = (realData, level) => {
-            return realData.map((d, i) => ({
-                id: `l${level}-${i}`,
-                level,
-                points: d[0],
-                bonus: GEM_TYPES[d[1]],
-                cost: mapCost(d[2])
-            }));
-        };
-
-        const generateDeck = () => {
-            const d1 = shuffleArray(mapRealCards(REAL_CARDS_LV1, 1));
-            const d2 = shuffleArray(mapRealCards(REAL_CARDS_LV2, 2));
-            const d3 = shuffleArray(mapRealCards(REAL_CARDS_LV3, 3));
-            return { 1: d1, 2: d2, 3: d3 };
-        };
-
-        const generateNobles = () => {
-            const shuffledHeroes = shuffleArray([...MARVEL_HEROES]);
-            const mapped = REAL_NOBLES.map((n, i) => ({ 
-                id: `noble-${i}`, 
-                points: n.points, 
-                req: mapCost(n.req),
-                hero: shuffledHeroes[i % shuffledHeroes.length]
-            }));
-            return shuffleArray(mapped).slice(0, 3);
-        };
-
-        // --- 子组件 ---
+        // --- 核心渲染组件 ---
         const GemIconSVG = ({ type, size = "100%", className = "" }) => {
           if (type === 'diamond') return <Diamond size={size} className={className} strokeWidth={2} />;
           if (type === 'emerald') return <Hexagon size={size} className={className} strokeWidth={2} />;
@@ -274,13 +107,37 @@
           return null;
         };
 
+        const MiniGem = ({ type }) => {
+          const colors = { emerald: 'bg-emerald-500 border-emerald-700', sapphire: 'bg-blue-600 border-blue-800', ruby: 'bg-red-600 border-red-800', diamond: 'bg-slate-200 border-slate-400', onyx: 'bg-slate-800 border-black', gold: 'bg-yellow-400 border-yellow-600' };
+          return <div className={`w-2 h-2 rounded-full border ${colors[type]} shadow-sm`}></div>;
+        };
+
+        // --- 2. 样式与数据 ---
+        const GEM_STYLES = {
+          emerald: { tokenGradient: 'bg-emerald-600', tokenBorder: 'border-emerald-400', cardBg: 'bg-emerald-900', cardBorder: 'border-emerald-500/50', patternClass: 'pattern-dots', accentColor: 'text-emerald-500', shapeFill: 'text-emerald-500/20', costBg: 'bg-emerald-700/80', costColor: 'bg-emerald-500', textColor: 'text-emerald-600', pointColor: 'text-white text-stroke-black', iconFill: 'fill-emerald-500 stroke-black stroke-[1.5px]', label: '时间宝石' },
+          sapphire: { tokenGradient: 'bg-blue-600', tokenBorder: 'border-blue-400', cardBg: 'bg-blue-900', cardBorder: 'border-blue-500/50', patternClass: 'pattern-grid', accentColor: 'text-blue-500', shapeFill: 'text-blue-500/20', costBg: 'bg-blue-700/80', costColor: 'bg-blue-500', textColor: 'text-blue-600', pointColor: 'text-white text-stroke-black', iconFill: 'fill-blue-500 stroke-black stroke-[1.5px]', label: '空间宝石' },
+          ruby: { tokenGradient: 'bg-red-600', tokenBorder: 'border-red-400', cardBg: 'bg-rose-900', cardBorder: 'border-red-500/50', patternClass: 'pattern-stripes', accentColor: 'text-rose-500', shapeFill: 'text-rose-500/20', costBg: 'bg-rose-700/80', costColor: 'bg-rose-500', textColor: 'text-rose-600', pointColor: 'text-white text-stroke-black', iconFill: 'fill-rose-500 stroke-black stroke-[1.5px]', label: '现实宝石' },
+          diamond: { tokenGradient: 'bg-slate-300', tokenBorder: 'border-white', cardBg: 'bg-slate-200', cardBorder: 'border-white/80', patternClass: 'pattern-radial-dark', accentColor: 'text-slate-500', shapeFill: 'text-black/10', costBg: 'bg-slate-300/90', costColor: 'bg-slate-200', textColor: 'text-slate-600', pointColor: 'text-white text-stroke-black', iconFill: 'fill-slate-50 stroke-slate-600 stroke-[1.5px]', label: '灵魂宝石' },
+          onyx: { tokenGradient: 'bg-zinc-700', tokenBorder: 'border-zinc-500', cardBg: 'bg-zinc-700', cardBorder: 'border-zinc-400/50', patternClass: 'pattern-checkers', accentColor: 'text-zinc-400', shapeFill: 'text-white/10', costBg: 'bg-zinc-600/90', costColor: 'bg-zinc-500', textColor: 'text-stone-800', pointColor: 'text-white text-stroke-black', iconFill: 'fill-zinc-800 stroke-black stroke-[1.5px]', label: '力量宝石' },
+          gold: { tokenGradient: 'bg-yellow-500', tokenBorder: 'border-yellow-200', textColor: 'text-amber-600', label: '心灵宝石' },
+        };
+        const LEVEL_CONFIG = { 1: { dotColor: 'text-emerald-400', borderColor: 'border-emerald-500/30', bg: 'bg-emerald-900/20' }, 2: { dotColor: 'text-yellow-400', borderColor: 'border-yellow-500/30', bg: 'bg-yellow-900/20' }, 3: { dotColor: 'text-blue-400', borderColor: 'border-blue-500/30', bg: 'bg-blue-900/20' } };
+        
+        // 4. 数据生成
+        const REAL_CARDS_LV1 = [[0,0,{1:1,2:1,3:1,4:1}],[0,0,{1:1,2:2,3:1,4:1}],[0,0,{1:2,2:2,4:1}],[0,0,{0:1,1:3,2:1}],[0,0,{2:1,4:2}],[0,0,{0:2,4:2}],[0,0,{0:3}],[1,0,{1:4}],[0,1,{0:1,2:1,3:1,4:1}],[0,1,{0:1,2:2,3:1,4:1}],[0,1,{0:1,2:2,3:2}],[0,1,{2:1,3:3,4:1}],[0,1,{2:2,3:1}],[0,1,{0:2,2:2}],[0,1,{1:3}],[1,1,{2:4}],[0,2,{0:1,1:1,3:1,4:1}],[0,2,{0:1,1:2,3:1,4:1}],[0,2,{0:1,1:1,3:2,4:1}],[0,2,{0:3,1:1,4:1}],[0,2,{0:2,1:1}],[0,2,{1:2,3:2}],[0,2,{2:3}],[1,2,{4:4}],[0,3,{0:1,1:1,2:1,4:1}],[0,3,{0:1,1:1,2:2,4:1}],[0,3,{0:1,1:2,2:2}],[0,3,{0:1,1:1,2:3}],[0,3,{0:2,4:1}],[0,3,{0:2,1:2}],[0,3,{3:3}],[1,3,{0:4}],[0,4,{0:1,1:1,2:1,3:1}],[0,4,{0:1,1:1,2:1,3:2}],[0,4,{0:1,1:2,2:1,3:1}],[0,4,{0:1,2:1,3:3}],[0,4,{1:2,2:1}],[0,4,{2:2,3:2}],[0,4,{4:3}],[1,4,{3:4}]];
+        const REAL_CARDS_LV2 = [[1,0,{0:2,1:3,2:3}],[1,0,{0:2,1:2,2:3}],[2,0,{1:5}],[2,0,{0:4,2:1,4:2}],[2,0,{1:5,2:3}],[3,0,{3:6}],[1,1,{1:2,2:3,3:3}],[1,1,{0:2,1:2,2:3}],[2,1,{2:5}],[2,1,{0:2,1:1,3:4}],[2,1,{2:5,3:3}],[3,1,{2:6}],[1,2,{2:2,3:3,4:3}],[1,2,{2:2,3:2,4:3}],[2,2,{4:5}],[2,2,{0:4,3:2,4:1}],[2,2,{0:3,4:5}],[3,2,{0:6}],[1,3,{0:3,1:3,2:2}],[1,3,{0:3,1:3,4:2}],[2,3,{0:5}],[2,3,{0:1,1:4,2:2}],[2,3,{0:5,1:3}],[3,3,{1:6}],[1,4,{0:3,1:2,2:3}],[1,4,{0:3,3:3,4:2}],[2,4,{3:5}],[2,4,{1:1,2:4,3:2}],[2,4,{3:5,4:3}],[3,4,{4:6}]];
+        const REAL_CARDS_LV3 = [[3,0,{0:3,1:3,2:5,3:3}],[4,0,{3:7}],[4,0,{0:3,1:6,2:3}],[5,0,{0:3,1:7}],[3,1,{0:3,1:3,2:3,4:5}],[4,1,{4:7}],[4,1,{0:3,1:3,2:6}],[5,1,{1:3,2:7}],[3,2,{0:5,1:3,2:3,4:3}],[4,2,{0:7}],[4,2,{0:6,1:3,4:3}],[5,2,{2:3,3:7}],[3,3,{0:3,2:3,3:3,4:5}],[4,3,{1:7}],[4,3,{0:3,3:6,4:3}],[5,3,{0:7,3:3}],[3,4,{0:3,1:5,3:3,4:3}],[4,4,{2:7}],[4,4,{1:3,2:3,4:6}],[5,4,{2:7,4:3}]];
+        const REAL_NOBLES = [{points:3,req:{0:4,1:4}},{points:3,req:{0:4,2:4}},{points:3,req:{0:4,3:4}},{points:3,req:{0:4,4:4}},{points:3,req:{1:4,2:4}},{points:3,req:{1:4,3:4}},{points:3,req:{1:4,4:4}},{points:3,req:{2:4,3:4}},{points:3,req:{2:4,4:4}},{points:3,req:{3:4,4:4}},{points:3,req:{0:3,2:3,3:3}},{points:3,req:{0:3,1:3,4:3}}];
+
+        const shuffleArray = (array) => { const arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+        const mapCost = (costObj) => { const res = {}; for(let k in costObj) res[GEM_TYPES[k]] = costObj[k]; return res; };
+        const mapRealCards = (realData, level) => realData.map((d, i) => ({ id: `l${level}-${i}`, level, points: d[0], bonus: GEM_TYPES[d[1]], cost: mapCost(d[2]) }));
+        const generateDeck = () => ({ 1: shuffleArray(mapRealCards(REAL_CARDS_LV1, 1)), 2: shuffleArray(mapRealCards(REAL_CARDS_LV2, 2)), 3: shuffleArray(mapRealCards(REAL_CARDS_LV3, 3)) });
+        const generateNobles = (count) => { const shuffledHeroes = shuffleArray([...MARVEL_HEROES]); const mapped = REAL_NOBLES.map((n, i) => ({ id: `noble-${i}`, points: n.points, req: mapCost(n.req), hero: shuffledHeroes[i % shuffledHeroes.length] })); return shuffleArray(mapped).slice(0, count); };
+
+        // --- 3. 业务组件 ---
         const GemToken = ({ type, size = 'md', className = "", count, showCount = true }) => {
-          const sizeClasses = {
-            sm: 'w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 text-[10px] lg:text-xs',
-            md: 'w-7 h-7 lg:w-9 lg:h-9 xl:w-10 xl:h-10 text-xs lg:text-sm',
-            lg: 'w-10 h-10 lg:w-12 lg:h-12 xl:w-16 xl:h-16 text-base lg:text-lg',
-            xl: 'w-14 h-14 lg:w-16 lg:h-16 xl:w-20 xl:h-20 text-lg lg:text-xl'
-          };
+          const sizeClasses = { sm: 'w-5 h-5 lg:w-6 lg:h-6', md: 'w-7 h-7 lg:w-9 lg:h-9', xl: 'w-10 h-10 lg:w-12 lg:h-12' };
           const style = GEM_STYLES[type];
           return (
             <div className={`prevent-squish relative rounded-full flex items-center justify-center font-bold border-2 ${style.tokenGradient} shadow-md border-opacity-50 ${style.tokenBorder} ${type === 'diamond' ? 'text-slate-800' : 'text-white'} ${sizeClasses[size]} ${className} transition-transform active:translate-y-1 active:shadow-none shrink-0 shadow-black/30`}> 
@@ -299,51 +156,26 @@
                {count > 1 && <div className={`absolute top-0.5 right-0.5 w-full h-full rounded border border-inherit bg-inherit opacity-80 -z-10`}></div>}
                {count > 2 && <div className={`absolute top-1 right-1 w-full h-full rounded border border-inherit bg-inherit opacity-60 -z-20`}></div>}
                <div className={`drop-shadow-md z-10`}><GemIconSVG type={type} size="60%" className={style.iconFill} /></div>
-               <div className={`absolute inset-0 flex items-center justify-center z-20`}>
-                 <span className={`font-black text-white text-stroke-black text-base lg:text-lg xl:text-xl`}>{count}</span>
-               </div>
+               <div className={`absolute inset-0 flex items-center justify-center z-20`}><span className={`font-black text-white text-stroke-black text-base lg:text-lg xl:text-xl`}>{count}</span></div>
             </div>
           );
-        };
-
-        const MiniGem = ({ type }) => {
-          const colors = { emerald: 'bg-emerald-500 border-emerald-700', sapphire: 'bg-blue-600 border-blue-800', ruby: 'bg-red-600 border-red-800', diamond: 'bg-slate-200 border-slate-400', onyx: 'bg-slate-800 border-black', gold: 'bg-yellow-400 border-yellow-600' };
-          return <div className={`w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full border ${colors[type]} shadow-sm`}></div>;
         };
 
         const Card = ({ card, canBuy, onBuy, isReserving, isReservedView = false, inModal = false }) => {
           const style = GEM_STYLES[card.bonus];
           const canReserve = isReserving && !isReservedView;
-          
           return (
-            <div 
-              className={`prevent-squish relative group flex flex-col justify-between ${inModal ? 'w-48 h-64 scale-100' : CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl transition-all duration-300 ${style.cardBg} border-2 overflow-hidden shadow-xl 
-              ${canReserve ? 'ring-4 ring-yellow-400 cursor-pointer animate-pulse z-20' : ''}
-              ${canBuy && !isReserving ? 'ring-2 lg:ring-4 ring-green-400/80 cursor-pointer -translate-y-1 lg:-translate-y-2 shadow-green-900/50 z-10' : `${style.cardBorder} ${!isReserving ? 'hover:z-10' : ''}`}`}
-              onClick={() => {
-                  if (canReserve) onBuy(card, 'reserve');
-                  else if (canBuy) onBuy(card, 'buy');
-              }}
-            >
+            <div className={`prevent-squish relative group flex flex-col justify-between ${inModal ? 'w-48 h-64 scale-100' : CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl transition-all duration-300 ${style.cardBg} border-2 overflow-hidden shadow-xl ${canReserve ? 'ring-4 ring-yellow-400 cursor-pointer animate-pulse z-20' : ''} ${canBuy && !isReserving ? 'ring-2 lg:ring-4 ring-green-400/80 cursor-pointer -translate-y-1 lg:-translate-y-2 shadow-green-900/50 z-10' : `${style.cardBorder} ${!isReserving ? 'hover:z-10' : ''}`}`} onClick={() => { if (canReserve) onBuy(card, 'reserve'); else if (canBuy) onBuy(card, 'buy'); }}>
               <div className={`absolute inset-0 opacity-30 pointer-events-none ${style.patternClass}`}></div>
-              <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-transform duration-500 group-hover:scale-110 ${style.shapeFill}`}>
-                  <GemIconSVG type={card.bonus} size={100} className="fill-current" />
-              </div>
-              
+              <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-transform duration-500 group-hover:scale-110 ${style.shapeFill}`}><GemIconSVG type={card.bonus} size={100} className="fill-current" /></div>
               <div className={`flex justify-between items-start p-2 lg:p-3 z-10 relative`}>
                 <div className={`text-3xl lg:text-4xl xl:text-5xl font-serif font-black ${style.pointColor} drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] leading-none mt-0.5 lg:mt-1 ml-0.5 lg:ml-1 filter`}>{card.points > 0 ? card.points : ''}</div>
-                <div className={`w-7 h-7 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-full flex items-center justify-center shadow-xl border-2 bg-white border-white`}>
-                   <GemIconSVG type={card.bonus} size={20} className={`${style.iconFill} lg:scale-110`} />
-                </div>
+                <div className={`w-7 h-7 lg:w-9 lg:h-9 xl:w-10 xl:h-10 rounded-full flex items-center justify-center shadow-xl border-2 bg-white border-white`}><GemIconSVG type={card.bonus} size={20} className={`${style.iconFill} lg:scale-110`} /></div>
               </div>
-
               {canReserve && <div className="absolute inset-0 bg-yellow-500/10 flex items-center justify-center pointer-events-none"><Lock size={32} className="text-yellow-200 drop-shadow-md" /></div>}
-
               <div className={`mt-auto p-1 lg:p-1.5 flex flex-col gap-1 backdrop-blur-md border-t border-white/10 z-10 rounded-b-lg ${style.costBg}`}>
                 <div className="flex flex-nowrap gap-0.5 lg:gap-1.5 items-end justify-center min-h-[20px] lg:min-h-[24px]">
-                  {Object.entries(card.cost).map(([type, amount]) => (
-                    <div key={type} className={`flex items-center justify-center w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 rounded-full border-2 ${GEM_STYLES[type].tokenGradient} ${GEM_STYLES[type].tokenBorder} ${type === 'diamond' ? 'text-slate-900' : 'text-white'} text-[10px] lg:text-xs xl:text-sm font-black shadow-sm`}>{amount}</div>
-                  ))}
+                  {Object.entries(card.cost).map(([type, amount]) => (<div key={type} className={`flex items-center justify-center w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 rounded-full border-2 ${GEM_STYLES[type].tokenGradient} ${GEM_STYLES[type].tokenBorder} ${type === 'diamond' ? 'text-slate-900' : 'text-white'} text-[10px] lg:text-xs xl:text-sm font-black shadow-sm`}>{amount}</div>))}
                 </div>
               </div>
               <div className={`absolute top-1/2 -translate-y-1/2 left-1 flex flex-col gap-1 opacity-30`}>{Array(card.level).fill(0).map((_, i) => (<div key={i} className="w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full bg-white shadow"></div>))}</div>
@@ -354,18 +186,12 @@
         const NobleTile = ({ noble }) => (
           <div className={`prevent-squish w-20 h-28 lg:w-24 lg:h-32 xl:w-28 xl:h-36 rounded-lg border-4 border-amber-500/50 flex flex-col items-center p-2 lg:p-2.5 shadow-xl relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200`}>
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] mix-blend-overlay"></div>
-            {/* Hero Name Label */}
-            <div className="absolute top-0 inset-x-0 bg-amber-500/20 py-0.5 text-center">
-                <span className="text-[10px] font-black text-amber-900 leading-none block transform -translate-y-px">{noble.hero}</span>
-            </div>
-            
+            <div className="absolute top-0 inset-x-0 bg-amber-500/20 py-0.5 text-center"><span className="text-[10px] font-black text-amber-900 leading-none block transform -translate-y-px">{noble.hero}</span></div>
             <div className="absolute top-4 right-0 p-1 opacity-20"><Crown size={50} className="text-amber-500" /></div>
             <div className="relative z-10 w-full h-full flex flex-col justify-between mt-3">
               <div className="text-2xl lg:text-3xl xl:text-4xl font-serif font-black text-amber-900 self-start leading-none drop-shadow-sm">{noble.points}</div>
               <div className="flex flex-col gap-0.5 lg:gap-1 self-end w-full pl-1 lg:pl-2">
-                {Object.entries(noble.req).map(([type, amt]) => (
-                  <div key={type} className="flex justify-between items-center bg-white/70 rounded px-1.5 lg:px-2 h-4 lg:h-5 shadow-sm border border-amber-200/50"><MiniGem type={type} /><span className="text-[10px] lg:text-xs font-bold text-amber-950">{amt}</span></div>
-                ))}
+                {Object.entries(noble.req).map(([type, amt]) => (<div key={type} className="flex justify-between items-center bg-white/70 rounded px-1.5 lg:px-2 h-4 lg:h-5 shadow-sm border border-amber-200/50"><MiniGem type={type} /><span className="text-[10px] lg:text-xs font-bold text-amber-950">{amt}</span></div>))}
               </div>
             </div>
           </div>
@@ -387,47 +213,49 @@
             </div>
         );
 
-        const DiceRollModal = ({ onRollComplete }) => {
+        const DiceRollModal = ({ players, onRollComplete }) => {
             const [rolling, setRolling] = useState(false);
-            const [results, setResults] = useState([null, null]);
+            const [results, setResults] = useState(players.map(() => null));
             const [winner, setWinner] = useState(null);
 
             const roll = () => {
                 setRolling(true);
-                let p1, p2;
-                do {
-                    p1 = Math.floor(Math.random() * 6) + 1;
-                    p2 = Math.floor(Math.random() * 6) + 1;
-                } while (p1 === p2);
+                let rolls = [];
+                let uniqueWinnerFound = false;
+                while(!uniqueWinnerFound) {
+                    rolls = players.map(() => Math.floor(Math.random() * 6) + 1);
+                    const maxVal = Math.max(...rolls);
+                    const winners = rolls.map((r, i) => r === maxVal ? i : -1).filter(i => i !== -1);
+                    if (winners.length === 1) uniqueWinnerFound = true;
+                }
 
                 setTimeout(() => {
-                    setResults([p1, p2]);
-                    setWinner(p1 > p2 ? 0 : 1);
+                    setResults(rolls);
+                    const maxVal = Math.max(...rolls);
+                    const winnerIdx = rolls.indexOf(maxVal);
+                    setWinner(winnerIdx);
                     setRolling(false);
-                    setTimeout(() => {
-                        onRollComplete(p1 > p2 ? 0 : 1);
-                    }, 2000);
+                    setTimeout(() => onRollComplete(winnerIdx), 2000);
                 }, 1000);
             };
 
             return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-                    <div className="bg-slate-800 border-2 border-amber-500 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
+                    <div className="bg-slate-800 border-2 border-amber-500 rounded-2xl p-8 max-w-2xl w-full text-center shadow-2xl">
                         <h2 className="text-2xl font-bold text-white mb-6">争夺先手</h2>
-                        <div className="flex justify-around mb-8">
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="text-amber-400 font-bold">Judy Hopps</div>
-                                <div className={`w-20 h-20 bg-slate-700 rounded-xl flex items-center justify-center text-4xl font-black border-2 border-slate-600 ${rolling ? 'animate-bounce' : ''} overflow-hidden`}>
-                                    {rolling ? '?' : (results[0] === null ? <User size={40} className="text-slate-500" /> : results[0])}
+                        <div className="flex justify-around mb-8 flex-wrap gap-4">
+                            {players.map((p, idx) => (
+                                <div key={idx} className="flex flex-col items-center gap-2">
+                                    <div className="text-slate-300 font-bold text-sm">{p.name}</div>
+                                    <div className={`w-16 h-16 lg:w-20 lg:h-20 bg-slate-700 rounded-xl flex items-center justify-center text-4xl font-black border-2 border-slate-600 ${rolling ? 'animate-bounce' : ''} transition-all ${winner === idx ? 'border-amber-500 bg-amber-900/50 scale-110' : ''}`}>
+                                        {rolling ? '?' : (results[idx] || (
+                                            p.id === 0 ? <JudyIcon size={32}/> : 
+                                            p.id === 1 && !p.isComputer ? <NickIcon size={32}/> : 
+                                            <BotIcon size={32}/>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex items-center text-slate-500 font-bold">VS</div>
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="text-blue-400 font-bold">Nick Wilde</div>
-                                <div className={`w-20 h-20 bg-slate-700 rounded-xl flex items-center justify-center text-4xl font-black border-2 border-slate-600 ${rolling ? 'animate-bounce' : ''} animation-delay-100 overflow-hidden`}>
-                                    {rolling ? '?' : (results[1] === null ? <User size={40} className="text-slate-500" /> : results[1])}
-                                </div>
-                            </div>
+                            ))}
                         </div>
                         {winner === null ? (
                             <button onClick={roll} disabled={rolling} className="w-full py-3 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold rounded-xl text-lg active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed">
@@ -435,7 +263,7 @@
                             </button>
                         ) : (
                             <div className="text-xl font-bold text-green-400 animate-pulse">
-                                {winner === 0 ? 'Judy Hopps' : 'Nick Wilde'} 先手！
+                                {players[winner].name} 先手！
                             </div>
                         )}
                     </div>
@@ -443,34 +271,22 @@
             );
         };
 
-        // --- 预留卡模态框 ---
         const ReservedCardsModal = ({ player, currentPlayer, onClose, onBuy }) => {
           return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
                 <div className="bg-slate-900 border-2 border-slate-700 rounded-2xl w-full max-w-2xl p-6 shadow-2xl relative" onClick={e => e.stopPropagation()}>
                     <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white"><X size={24}/></button>
                     <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2"><Lock className="text-yellow-500"/> {player.name} 的预留卡片</h2>
-                    
-                    {player.reserved.length === 0 ? (
-                        <div className="text-center py-12 text-slate-500 italic">暂无预留卡片</div>
-                    ) : (
+                    {player.reserved.length === 0 ? <div className="text-center py-12 text-slate-500 italic">暂无预留卡片</div> : (
                         <div className="flex flex-wrap gap-6 justify-center">
                             {player.reserved.map(card => {
-                                const canBuy = player.id === currentPlayer.id && onBuy && onBuy(card, 'buy', true); // check only
+                                const canBuy = player.id === currentPlayer.id && onBuy && onBuy(card, 'buy', true);
                                 return (
                                     <div key={card.id} className="flex flex-col gap-3 items-center">
                                         <Card card={card} inModal={true} />
                                         {player.id === currentPlayer.id ? (
-                                            <button 
-                                                onClick={() => onBuy(card, 'buy')}
-                                                disabled={!canBuy}
-                                                className={`px-4 py-2 rounded-full font-bold text-sm transition-all ${canBuy ? 'bg-green-600 hover:bg-green-500 text-white shadow-lg active:scale-95' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}
-                                            >
-                                                {canBuy ? '购买' : '资源不足'}
-                                            </button>
-                                        ) : (
-                                            <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">仅查看</div>
-                                        )}
+                                            <button onClick={() => onBuy(card, 'buy')} disabled={!canBuy} className={`px-4 py-2 rounded-full font-bold text-sm transition-all ${canBuy ? 'bg-green-600 hover:bg-green-500 text-white shadow-lg active:scale-95' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}>{canBuy ? '购买' : '资源不足'}</button>
+                                        ) : (<div className="text-xs text-slate-500 font-bold uppercase tracking-wider">仅查看</div>)}
                                     </div>
                                 );
                             })}
@@ -481,9 +297,40 @@
           );
         };
 
-        // --- 主游戏组件 ---
+        // --- 顶部玩家详细信息组件 (Optimized for space) ---
+        // 将数字显示在色块旁边或内部，单行显示
+        const TopPlayerStats = ({ player }) => (
+            <div className="flex gap-2 text-[10px] items-center">
+                {/* Gems */}
+                <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50">
+                    {GEM_TYPES.map(g => (
+                        <div key={g} className="flex items-center gap-0.5">
+                            <div className={`w-2.5 h-2.5 rounded-full ${GEM_STYLES[g].tokenGradient} border ${GEM_STYLES[g].tokenBorder} ${player.gems[g]>0?'shadow-sm':'opacity-30'}`}></div>
+                            <span className={`text-[9px] font-bold ${player.gems[g]>0?'text-white':'text-slate-600'}`}>{player.gems[g]}</span>
+                        </div>
+                    ))}
+                    <div className="flex items-center gap-0.5 pl-1 border-l border-slate-700/50">
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 border border-yellow-200"></div>
+                        <span className={`text-[9px] font-bold ${player.gems.gold>0?'text-yellow-500':'text-slate-600'}`}>{player.gems.gold}</span>
+                    </div>
+                </div>
+
+                {/* Cards */}
+                <div className="flex gap-1 bg-slate-900/50 px-1.5 py-0.5 rounded-lg border border-slate-700/50">
+                    {GEM_TYPES.map(g => (
+                         <div key={g} className="flex items-center gap-0.5">
+                            <div className={`w-2.5 h-3 rounded-sm border ${GEM_STYLES[g].cardBorder} ${GEM_STYLES[g].cardBg} ${player.bonuses[g]>0?'shadow-sm':'opacity-30'}`}></div>
+                            <span className={`text-[9px] font-bold ${player.bonuses[g]>0?'text-white':'text-slate-600'}`}>{player.bonuses[g]}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+
+        // --- 主游戏逻辑 ---
         function SplendorGame() {
-          const [gameState, setGameState] = useState('setup'); // setup, diceroll, playing, end
+          const [gameState, setGameState] = useState('setup');
+          const [setupConfig, setSetupConfig] = useState({ playerCount: 2, humanCount: 1, difficulty: 'normal' });
           const [deck, setDeck] = useState(null);
           const [board, setBoard] = useState({ 1: [], 2: [], 3: [] });
           const [nobles, setNobles] = useState([]);
@@ -493,97 +340,76 @@
           const [selectedGems, setSelectedGems] = useState([]);
           const [logs, setLogs] = useState([]);
           const [winner, setWinner] = useState(null);
-          
-          // History for undo
           const [history, setHistory] = useState([]);
-
           const [viewingReservedPlayer, setViewingReservedPlayer] = useState(null);
           const [notification, setNotification] = useState(null);
           const [notifType, setNotifType] = useState('error');
           const [isReserving, setIsReserving] = useState(false);
           const logsEndRef = useRef(null);
 
-          const currentPlayerIndex = turn % 2;
-          const currentPlayer = players[currentPlayerIndex];
+          const currentPlayer = players.length > 0 ? players[turn % players.length] : null;
+          const isHumanTurn = currentPlayer && !currentPlayer.isComputer;
 
-          const showNotification = (msg, type = 'error') => {
-              setNotification(msg);
-              setNotifType(type);
-              setTimeout(() => setNotification(null), 3000);
-          };
-
-          const saveState = () => {
-              setHistory(prev => [...prev, JSON.stringify({
-                  deck, board, nobles, bank, players, turn, logs
-              })]);
-          };
-
-          const undo = () => {
-              if (history.length === 0) return;
-              const lastState = JSON.parse(history[history.length - 1]);
-              setDeck(lastState.deck);
-              setBoard(lastState.board);
-              setNobles(lastState.nobles);
-              setBank(lastState.bank);
-              setPlayers(lastState.players);
-              setTurn(lastState.turn);
-              setLogs(lastState.logs);
-              setHistory(prev => prev.slice(0, -1));
-              setSelectedGems([]);
-              setIsReserving(false);
-              showNotification("已撤销上一步操作", 'success');
-          };
-
-          const initGame = () => {
-            setGameState('diceroll');
-          };
-
-          const startGame = (startingPlayerIndex) => {
-            const newDeck = generateDeck();
-            const newNobles = generateNobles();
-            const newBoard = { 1: newDeck[1].splice(0, 4), 2: newDeck[2].splice(0, 4), 3: newDeck[3].splice(0, 4) };
-            const initialBank = { emerald: 4, sapphire: 4, ruby: 4, diamond: 4, onyx: 4, gold: 5 };
-            
-            setDeck(newDeck);
-            setBoard(newBoard);
-            setNobles(newNobles);
-            setBank(initialBank);
-            setPlayers([
-              { 
-                  id: 0, 
-                  name: "Judy Hopps", 
-                  // Removed avatar property
-                  gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, 
-                  bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, 
-                  score: 0, 
-                  reserved: [], 
-                  visitedNobles: [] 
-              },
-              { 
-                  id: 1, 
-                  name: "Nick Wilde", 
-                  // Removed avatar property
-                  gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, 
-                  bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, 
-                  score: 0, 
-                  reserved: [], 
-                  visitedNobles: [] 
-              },
-            ]);
-            setTurn(startingPlayerIndex); 
-            setLogs(["游戏开始！"]); 
-            setSelectedGems([]); 
-            setWinner(null); 
-            setHistory([]);
-            setGameState('playing');
-          };
-
-          const addLog = (msg) => setLogs(prev => [...prev, msg].slice(-20)); // 保留最后20条
+          const showNotification = (msg, type = 'error') => { setNotification(msg); setNotifType(type); setTimeout(() => setNotification(null), 3000); };
+          const addLog = (msg) => setLogs(prev => [...prev, msg].slice(-20));
           const totalGems = (player) => Object.values(player.gems).reduce((a, b) => a + b, 0);
 
           useEffect(() => {
-              logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-          }, [logs]);
+              if (gameState === 'playing' && currentPlayer?.isComputer && !winner) {
+                  const timer = setTimeout(() => executeAIMove(), 1500);
+                  return () => clearTimeout(timer);
+              }
+          }, [turn, gameState, winner]);
+
+          useEffect(() => { logsEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [logs]);
+
+          const saveState = () => { setHistory(prev => [...prev, JSON.stringify({ deck, board, nobles, bank, players, turn, logs })]); };
+          const undo = () => {
+              if (history.length === 0 || !isHumanTurn) return;
+              const lastState = JSON.parse(history[history.length - 1]);
+              setDeck(lastState.deck); setBoard(lastState.board); setNobles(lastState.nobles); setBank(lastState.bank); setPlayers(lastState.players); setTurn(lastState.turn); setLogs(lastState.logs); setHistory(prev => prev.slice(0, -1)); setSelectedGems([]); setIsReserving(false); showNotification("已撤销上一步操作", 'success');
+          };
+
+          const executeAIMove = () => {
+              const p = currentPlayer;
+              const difficulty = setupConfig.difficulty;
+              const allCards = [...p.reserved, ...board[1], ...board[2], ...board[3]];
+              let affordable = allCards.filter(c => canAfford(p, c));
+              
+              if (affordable.length > 0) {
+                  if (difficulty === 'easy') {
+                      const target = affordable[Math.floor(Math.random() * affordable.length)];
+                      handleBuyCard(target, p.reserved.some(r => r.id === target.id), false);
+                  } else {
+                      affordable.sort((a, b) => b.points - a.points || a.level - b.level);
+                      handleBuyCard(affordable[0], p.reserved.some(r => r.id === affordable[0].id), false);
+                  }
+                  return;
+              }
+
+              const availableTypes = GEM_TYPES.filter(t => bank[t] > 0);
+              if (availableTypes.length >= 3 && totalGems(p) <= 7) {
+                  const toTake = availableTypes.slice(0, 3);
+                  const newBank = { ...bank }; const newPlayer = { ...p, gems: { ...p.gems } };
+                  toTake.forEach(g => { newBank[g]--; newPlayer.gems[g]++; });
+                  setBank(newBank); const newPlayers = [...players]; newPlayers[turn % players.length] = newPlayer; setPlayers(newPlayers);
+                  addLog(`${p.name} 拿取: ${toTake.map(g => GEM_STYLES[g].label).join(' ')}`);
+                  endTurn(newPlayer);
+              } else if (availableTypes.length > 0 && totalGems(p) < MAX_GEMS) {
+                  const toTake = availableTypes.slice(0, Math.min(availableTypes.length, MAX_GEMS - totalGems(p)));
+                  const newBank = { ...bank }; const newPlayer = { ...p, gems: { ...p.gems } };
+                  toTake.forEach(g => { newBank[g]--; newPlayer.gems[g]++; });
+                  setBank(newBank); const newPlayers = [...players]; newPlayers[turn % players.length] = newPlayer; setPlayers(newPlayers);
+                  addLog(`${p.name} 拿取: ${toTake.map(g => GEM_STYLES[g].label).join(' ')}`);
+                  endTurn(newPlayer);
+              } else {
+                  if (board[1].length > 0 && p.reserved.length < 3) {
+                      handleReserveCard(board[1][0]);
+                  } else {
+                      endTurn(p); 
+                  }
+              }
+          };
 
           const canAfford = (player, card) => {
             let missing = 0;
@@ -595,7 +421,6 @@
             }
             return player.gems.gold >= missing;
           };
-
           const getAffordCost = (player, card) => {
             let payment = { emerald: 0, sapphire: 0, ruby: 0, diamond: 0, onyx: 0, gold: 0 };
             let goldNeeded = 0;
@@ -611,367 +436,274 @@
           };
 
           const handleGemClick = (type) => {
+            if (!isHumanTurn) return;
             if (type === 'gold') {
                 if (bank.gold <= 0) { showNotification("心灵宝石已被拿光", 'error'); return; }
                 if (currentPlayer.reserved.length >= MAX_RESERVED) { showNotification("预留位已满", 'error'); return; }
-                setIsReserving(!isReserving);
-                setSelectedGems([]);
-                return;
+                setIsReserving(!isReserving); setSelectedGems([]); return;
             }
             if (isReserving) setIsReserving(false);
-
-            // Gem Logic with Deselect capability
             const countCurrent = selectedGems.filter(g => g === type).length;
             const countTotal = selectedGems.length;
-
-            if (countCurrent === 2) {
-                // Was double, clear it
-                setSelectedGems([]);
-                return;
-            }
-
-            if (countCurrent === 1) {
-                // Has 1 of this type
-                if (countTotal > 1) {
-                    // [A, B] -> Click A -> [B] (Deselect A)
-                    setSelectedGems(selectedGems.filter(g => g !== type));
-                    return;
-                }
-                
-                // [A] -> Click A
-                if (countTotal === 1) {
-                    // Try to make it double [A, A]
-                    if (bank[type] >= 4) {
-                        setSelectedGems([type, type]);
-                    } else {
-                        // Cannot double, so just deselect
-                        setSelectedGems([]);
-                    }
-                    return;
-                }
-            }
-
-            // Case: 0 of this type. Adding new.
+            if (countCurrent === 2) { setSelectedGems([]); return; }
+            if (countCurrent === 1) { if (countTotal > 1) { setSelectedGems(selectedGems.filter(g => g !== type)); return; } if (countTotal === 1) { if (bank[type] >= 4) setSelectedGems([type, type]); else setSelectedGems([]); return; } }
             if (bank[type] <= 0) { showNotification("该宝石已被拿光", 'error'); return; }
-            
-            // Check rules
-            const hasDouble = new Set(selectedGems).size !== selectedGems.length;
-            if (hasDouble) {
-                showNotification("已拿同色宝石，不能再拿其他", 'error');
-                return;
-            }
-            
-            if (countTotal >= 3) {
-                showNotification("最多只能拿3个宝石", 'error');
-                return;
-            }
-
-            // Add it
+            if (new Set(selectedGems).size !== selectedGems.length) { showNotification("已拿同色宝石", 'error'); return; }
+            if (countTotal >= 3) { showNotification("最多拿3个", 'error'); return; }
             setSelectedGems([...selectedGems, type]);
           };
 
           const confirmTakeGems = () => {
+            if (!isHumanTurn) return;
             if (selectedGems.length === 0) return;
-            if (totalGems(currentPlayer) + selectedGems.length > MAX_GEMS) { showNotification(`宝石已达上限 (10个)！请先花费`, 'error'); setSelectedGems([]); return; }
+            if (totalGems(currentPlayer) + selectedGems.length > MAX_GEMS) { showNotification(`宝石已达上限!`, 'error'); setSelectedGems([]); return; }
             saveState();
-            const newBank = { ...bank };
-            const newPlayer = { ...currentPlayer, gems: { ...currentPlayer.gems } };
+            const newBank = { ...bank }; const newPlayer = { ...currentPlayer, gems: { ...currentPlayer.gems } };
             selectedGems.forEach(g => { newBank[g]--; newPlayer.gems[g]++; });
-            setBank(newBank); updatePlayer(newPlayer);
+            setBank(newBank); const newPlayers = [...players]; newPlayers[turn % players.length] = newPlayer; setPlayers(newPlayers);
             addLog(`${currentPlayer.name} 拿取: ${selectedGems.map(g => GEM_STYLES[g].label).join(' ')}`);
             setSelectedGems([]); endTurn(newPlayer);
           };
 
           const handleCardInteraction = (card, action, checkOnly = false) => {
+              if (!isHumanTurn && !checkOnly) return;
               if (action === 'buy') return handleBuyCard(card, false, checkOnly);
               if (action === 'reserve') return handleReserveCard(card);
           };
 
           const handleBuyCard = (card, fromReserved = false, checkOnly = false) => {
-            if (!canAfford(currentPlayer, card)) {
-                if (!checkOnly) showNotification("资源不足！", 'error');
-                return false;
-            }
+            if (!canAfford(currentPlayer, card)) { if (!checkOnly && isHumanTurn) showNotification("资源不足！", 'error'); return false; }
             if (checkOnly) return true;
-            
-            saveState();
+            if (isHumanTurn) saveState();
             const payment = getAffordCost(currentPlayer, card);
-            const newBank = { ...bank };
-            const newPlayer = { ...currentPlayer, gems: { ...currentPlayer.gems }, bonuses: { ...currentPlayer.bonuses } };
+            const newBank = { ...bank }; const newPlayer = { ...currentPlayer, gems: { ...currentPlayer.gems }, bonuses: { ...currentPlayer.bonuses } };
             Object.entries(payment).forEach(([type, amt]) => { newBank[type] += amt; newPlayer.gems[type] -= amt; });
-            newPlayer.bonuses[card.bonus]++;
-            newPlayer.score += card.points;
-            if (fromReserved) {
-                newPlayer.reserved = newPlayer.reserved.filter(c => c.id !== card.id);
-                setViewingReservedPlayer(null);
-            } else {
-                replaceCardOnBoard(card);
-            }
-            setBank(newBank); addLog(`${newPlayer.name} 购买 (+${card.points})`); checkNoblesVisit(newPlayer);
+            newPlayer.bonuses[card.bonus]++; newPlayer.score += card.points;
+            if (fromReserved) { newPlayer.reserved = newPlayer.reserved.filter(c => c.id !== card.id); setViewingReservedPlayer(null); } else { replaceCardOnBoard(card); }
+            setBank(newBank); const newPlayers = [...players]; newPlayers[turn % players.length] = newPlayer; setPlayers(newPlayers);
+            addLog(`${newPlayer.name} 购买 (+${card.points})`); checkNoblesVisit(newPlayer);
             return true;
           };
 
           const handleReserveCard = (card) => {
-            if (currentPlayer.reserved.length >= MAX_RESERVED) { showNotification("预留位已满 (最多3张)", 'error'); return; }
-            saveState();
-            // FIX: Deep copy gems to avoid mutating state captured by saveState closure/execution timing
-            const newPlayer = { 
-                ...currentPlayer, 
-                gems: { ...currentPlayer.gems }, 
-                reserved: [...currentPlayer.reserved, card] 
-            };
+            if (currentPlayer.reserved.length >= MAX_RESERVED) { if(isHumanTurn) showNotification("预留位已满", 'error'); return; }
+            if (isHumanTurn) saveState();
+            const newPlayer = { ...currentPlayer, gems: { ...currentPlayer.gems }, reserved: [...currentPlayer.reserved, card] };
             const newBank = { ...bank };
-            if (newBank.gold > 0) {
-              if (totalGems(newPlayer) < MAX_GEMS) { newBank.gold--; newPlayer.gems.gold++; addLog(`${newPlayer.name} 预留+心灵宝石`); }
-              else addLog(`${newPlayer.name} 预留 (满)`);
-            } else addLog(`${newPlayer.name} 预留 (无心灵宝石)`);
-            
-            updatePlayer(newPlayer);
+            if (newBank.gold > 0) { if (totalGems(newPlayer) < MAX_GEMS) { newBank.gold--; newPlayer.gems.gold++; addLog(`${newPlayer.name} 预留+心灵宝石`); } else addLog(`${newPlayer.name} 预留 (满)`); } else addLog(`${newPlayer.name} 预留 (无心灵宝石)`);
+            const newPlayers = [...players]; newPlayers[turn % players.length] = newPlayer; setPlayers(newPlayers);
             replaceCardOnBoard(card); setBank(newBank); setIsReserving(false); endTurn(newPlayer);
           };
 
-          const replaceCardOnBoard = (card) => {
-            const lvl = card.level;
-            const newBoard = { ...board };
-            const row = newBoard[lvl].filter(c => c.id !== card.id);
-            if (deck[lvl].length > 0) row.push(deck[lvl].pop());
-            newBoard[lvl] = row; setBoard(newBoard);
-          };
-
+          const replaceCardOnBoard = (card) => { const lvl = card.level; const newBoard = { ...board }; const row = newBoard[lvl].filter(c => c.id !== card.id); if (deck[lvl].length > 0) row.push(deck[lvl].pop()); newBoard[lvl] = row; setBoard(newBoard); };
           const checkNoblesVisit = (player) => {
-            let visitedSomething = false;
-            const newNobles = [...nobles];
-            const playerNobles = [...player.visitedNobles];
-            const newPlayer = { ...player };
+            let visitedSomething = false; const newNobles = [...nobles]; const playerNobles = [...player.visitedNobles]; const newPlayer = { ...player };
             for (let i = newNobles.length - 1; i >= 0; i--) {
-              const noble = newNobles[i];
-              let eligible = true;
+              const noble = newNobles[i]; let eligible = true;
               for (const [type, req] of Object.entries(noble.req)) { if (player.bonuses[type] < req) { eligible = false; break; } }
               if (eligible) {
-                const msg = `🎉 贵族来访！${player.name} 获得贵族卡！`;
-                addLog(msg);
-                showNotification(msg, 'success'); 
-                newPlayer.score += noble.points;
-                playerNobles.push(noble);
-                newNobles.splice(i, 1);
-                visitedSomething = true;
-                break; 
+                const msg = `🎉 贵族来访！${player.name} 获得 ${noble.hero}！`; addLog(msg); showNotification(msg, 'success');
+                newPlayer.score += noble.points; playerNobles.push(noble); newNobles.splice(i, 1); visitedSomething = true; break;
               }
             }
-            if (visitedSomething) { newPlayer.visitedNobles = playerNobles; setNobles(newNobles); }
-            updatePlayer(newPlayer); endTurn(newPlayer);
+            if (visitedSomething) { newPlayer.visitedNobles = playerNobles; setNobles(newNobles); const newPlayers = [...players]; newPlayers[turn % players.length] = newPlayer; setPlayers(newPlayers); endTurn(newPlayer); } else { endTurn(newPlayer); }
           };
+          const endTurn = (finalPlayerState) => { if (finalPlayerState.score >= POINTS_TO_WIN) { showNotification(`🏆 ${finalPlayerState.name} 获胜！`, 'success'); setWinner(finalPlayerState); setTimeout(() => setGameState('end'), 2000); return; } setTurn(prev => prev + 1); setSelectedGems([]); };
 
-          const updatePlayer = (newPlayer) => { const newPlayers = [...players]; newPlayers[currentPlayerIndex] = newPlayer; setPlayers(newPlayers); };
-          const endTurn = (finalPlayerState) => {
-            if (finalPlayerState.score >= POINTS_TO_WIN) { 
-                showNotification(`🏆 ${finalPlayerState.name} 获胜！`, 'success'); 
-                setWinner(finalPlayerState); 
-                setTimeout(() => setGameState('end'), 2000); 
-                return; 
-            }
-            setTurn(turn + 1); setSelectedGems([]);
+          const startSetup = () => {
+             const { playerCount, humanCount } = setupConfig;
+             const gemCount = playerCount === 2 ? 4 : (playerCount === 3 ? 5 : 7);
+             const nobleCount = playerCount + 1;
+             
+             const initialBank = { emerald: gemCount, sapphire: gemCount, ruby: gemCount, diamond: gemCount, onyx: gemCount, gold: 5 };
+             const newDeck = generateDeck();
+             const newNobles = generateNobles(nobleCount);
+             const newBoard = { 1: newDeck[1].splice(0, 4), 2: newDeck[2].splice(0, 4), 3: newDeck[3].splice(0, 4) };
+             setBank(initialBank); setDeck(newDeck); setNobles(newNobles); setBoard(newBoard);
+             
+             const newPlayers = [];
+             // Humans
+             if (humanCount >= 1) newPlayers.push({ id: 0, name: "Judy Hopps", isComputer: false, gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] });
+             if (humanCount >= 2) newPlayers.push({ id: 1, name: "Nick Wilde", isComputer: false, gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] });
+             
+             // Computers
+             const botNames = ["Flash", "Chief Bogo", "Clawhauser"];
+             let botIdx = 0;
+             while(newPlayers.length < playerCount) {
+                 newPlayers.push({ id: newPlayers.length, name: botNames[botIdx++] || `Bot ${botIdx}`, isComputer: true, gems: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0, gold:0 }, bonuses: { emerald:0, sapphire:0, ruby:0, diamond:0, onyx:0 }, score: 0, reserved: [], visitedNobles: [] });
+             }
+
+             setPlayers(newPlayers);
+             setGameState('diceroll');
           };
+          const handleDiceFinish = (winnerIdx) => { setTurn(winnerIdx); setLogs(["游戏开始！"]); setSelectedGems([]); setWinner(null); setHistory([]); setGameState('playing'); };
 
           if (gameState === 'setup') {
-            return (
-              <div className="h-screen w-screen bg-slate-900 flex flex-col items-center justify-center text-white font-serif relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/20 blur-[100px] rounded-full pointer-events-none"></div>
-                <div className="z-10 text-center space-y-6 animate-fade-in-up">
-                  <Crown size={60} className="mx-auto text-amber-500 animate-bounce" />
-                  <h1 className="text-6xl font-black bg-gradient-to-b from-amber-300 to-amber-600 bg-clip-text text-transparent drop-shadow-sm tracking-widest uppercase">Splendor</h1>
-                  <h2 className="text-xl text-slate-400 tracking-widest border-t border-b border-slate-700 py-2 inline-block">璀璨宝石</h2>
-                  <div className="h-4"></div>
-                  <button onClick={initGame} className="px-12 py-4 bg-gradient-to-r from-amber-600 to-yellow-600 rounded-full text-lg font-bold hover:scale-105 active:scale-95 transition-all border-2 border-amber-400/50 text-white shadow-xl">开始游戏 (2人对战)</button>
-                </div>
-              </div>
-            );
-          }
+              return (
+                <div className="h-full w-full flex flex-col items-center justify-center bg-[#0f172a] text-white p-4 relative overflow-hidden pattern-hex">
+                    {/* 背景光影效果 */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-yellow-500/5 rounded-full blur-[60px] pointer-events-none"></div>
 
-          if (gameState === 'diceroll') {
-              return <DiceRollModal onRollComplete={startGame} />;
+                    <div className="relative z-10 flex flex-col items-center mb-8 animate-float">
+                        <CrownFilled size={80} className="text-amber-500 mb-4 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)]" />
+                        <h1 className="text-6xl md:text-7xl font-serif font-black bg-gradient-to-b from-amber-200 via-amber-400 to-amber-700 bg-clip-text text-transparent tracking-[0.2em] uppercase drop-shadow-lg text-center leading-tight">
+                            SPLENDOR
+                        </h1>
+                        <div className="h-px w-32 bg-gradient-to-r from-transparent via-amber-500 to-transparent my-3 opacity-60"></div>
+                        <h2 className="text-xl md:text-2xl font-serif text-slate-400 tracking-[0.5em] uppercase font-light">
+                            璀璨宝石
+                        </h2>
+                    </div>
+
+                    <div className="bg-slate-900/80 backdrop-blur-md p-8 rounded-2xl border border-amber-500/30 shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-md relative z-20">
+                        <h2 className="text-center text-amber-500 font-bold mb-6 tracking-wider uppercase text-sm border-b border-amber-500/20 pb-2">游戏配置</h2>
+                        
+                        <div className="mb-6 space-y-3">
+                            <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">玩家人数</label>
+                            <div className="grid grid-cols-3 gap-3">
+                                {[2, 3, 4].map(n => (
+                                    <button key={n} onClick={() => setSetupConfig({...setupConfig, playerCount: n, humanCount: Math.min(setupConfig.humanCount, 2)})} 
+                                        className={`py-3 rounded-lg font-bold border transition-all relative overflow-hidden group ${setupConfig.playerCount === n ? 'bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700 hover:border-slate-600'}`}>
+                                        <span className="relative z-10">{n} 人</span>
+                                        {setupConfig.playerCount === n && <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mb-6 space-y-3">
+                             <div className="flex justify-between items-end">
+                                <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">玩家角色</label>
+                                <span className="text-[10px] text-amber-500/80 font-mono">{setupConfig.humanCount === 1 ? "朱迪 vs 电脑" : "朱迪 & 尼克 vs 电脑"}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                {Array.from({length: Math.min(2, setupConfig.playerCount)}, (_, i) => i + 1).map(n => (
+                                    <button key={n} onClick={() => setSetupConfig({...setupConfig, humanCount: n})} 
+                                        className={`py-3 rounded-lg font-bold border transition-all relative overflow-hidden ${setupConfig.humanCount === n ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg shadow-emerald-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}>
+                                        <div className="flex items-center justify-center gap-2 relative z-10">
+                                            {n === 1 ? <JudyIcon size={20}/> : <div className="flex -space-x-2"><JudyIcon size={20}/><NickIcon size={20}/></div>}
+                                            <span>{n} 人类</span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {setupConfig.playerCount > setupConfig.humanCount && (
+                            <div className="mb-8 space-y-3">
+                                <label className="text-xs text-slate-400 uppercase tracking-widest font-bold">AI 难度</label>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {['easy', 'normal', 'hard'].map(d => (
+                                        <button key={d} onClick={() => setSetupConfig({...setupConfig, difficulty: d})} 
+                                            className={`py-2 rounded-lg font-bold border capitalize transition-all text-sm ${setupConfig.difficulty === d ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-900/50' : 'bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700'}`}>
+                                            {d === 'easy' ? '简单' : d === 'normal' ? '普通' : '困难'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <button onClick={startSetup} className="w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 rounded-xl text-white font-black text-lg shadow-xl shadow-amber-900/40 transform transition-all active:scale-[0.98] relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                            <span className="relative z-10 flex items-center justify-center gap-2">开始游戏 <Crown size={20} /></span>
+                        </button>
+                    </div>
+                    
+                    <div className="absolute bottom-4 text-slate-600 text-xs font-mono">Designed for iPad Pro</div>
+                </div>
+              );
           }
+          if (gameState === 'diceroll') return <DiceRollModal players={players} onRollComplete={handleDiceFinish} />;
+
+          const humanCount = players.filter(p => !p.isComputer).length;
+          let bottomPlayers = [], topPlayers = [];
+          if (humanCount <= 1) {
+              if (players.length === 2 && players[1].isComputer) { bottomPlayers = [players[0]]; topPlayers = [players[1]]; }
+              else if (players.length > 2 && humanCount === 1) { bottomPlayers = [players[0]]; topPlayers = players.slice(1); }
+              else { bottomPlayers = [players[0], players[1]]; topPlayers = players.slice(2); }
+          } else { bottomPlayers = [players[0], players[1]]; topPlayers = players.slice(2); }
+
+          if (!players.length) return null;
 
           return (
             <div className="h-full w-full bg-[#0f172a] text-slate-200 overflow-hidden font-sans select-none flex flex-col">
               {notification && <Notification msg={notification} type={notifType} />}
-
-              {/* Header */}
-              <div className="h-10 lg:h-12 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 lg:px-6 shadow-2xl z-40 shrink-0">
-                <div className="flex items-center gap-2 text-amber-500 font-serif font-black text-lg lg:text-xl tracking-wide"><Crown size={20} strokeWidth={2.5} /> SPLENDOR</div>
-                
-                {/* 顶部状态栏 */}
-                <div className="flex gap-4 lg:gap-8 bg-slate-800 px-3 lg:px-4 py-1 rounded-full border border-slate-700 shadow-inner text-xs lg:text-sm">
-                  <div className={`flex items-center gap-2 ${currentPlayerIndex === 0 ? 'text-amber-400 font-bold' : 'text-slate-500'}`}><div className={`w-1.5 h-1.5 rounded-full ${currentPlayerIndex === 0 ? 'bg-amber-400 animate-pulse' : 'bg-slate-700'}`}></div>玩家 1</div>
-                  <div className="text-slate-700 font-thin">|</div>
-                  <div className={`flex items-center gap-2 ${currentPlayerIndex === 1 ? 'text-amber-400 font-bold' : 'text-slate-500'}`}><div className={`w-1.5 h-1.5 rounded-full ${currentPlayerIndex === 1 ? 'bg-amber-400 animate-pulse' : 'bg-slate-700'}`}></div>玩家 2</div>
-                </div>
-
-                <div className="flex gap-2">
-                    <button onClick={undo} disabled={history.length === 0} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors border border-slate-700 text-xs lg:text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed">
-                        <Undo2 size={14}/><span>撤销</span>
-                    </button>
-                    <button onClick={() => setGameState('setup')} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors border border-slate-700 text-xs lg:text-sm font-bold">
-                      <RotateCcw size={14}/><span>重新開始</span>
-                    </button>
-                </div>
+              <div className="h-12 lg:h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 lg:px-6 shadow-2xl z-40 shrink-0">
+                 <div className="flex items-center gap-2 font-serif font-black text-2xl tracking-wide bg-gradient-to-b from-amber-300 to-amber-600 bg-clip-text text-transparent"><Crown size={28} strokeWidth={2.5} className="text-amber-500 animate-bounce"/> SPLENDOR</div>
+                 {topPlayers.length > 0 && (<div className="flex-1 flex justify-center gap-6 px-4 overflow-x-auto">{topPlayers.map(p => (<div key={p.id} className={`flex items-center gap-3 px-3 py-1.5 rounded-full border text-xs transition-all ${p.id === currentPlayer.id ? 'bg-amber-900/50 border-amber-500 animate-pulse ring-1 ring-amber-500/50' : 'bg-slate-800 border-slate-700'}`}>{p.isComputer ? <BotIcon size={20}/> : (p.id===0?<JudyIcon size={20}/>:<NickIcon size={20}/>)} <div><div className="font-bold text-slate-300 flex items-center gap-2 mb-0.5"><span className="text-sm">{p.name}</span><span className="text-yellow-500 font-black text-base">{p.score}</span></div><TopPlayerStats player={p} /></div></div>))}</div>)}
+                 <div className="flex gap-2"><button onClick={undo} disabled={history.length === 0 || !isHumanTurn} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors border border-slate-700 text-xs lg:text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"><Undo2 size={14}/><span>撤销</span></button><button onClick={() => setGameState('setup')} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors border border-slate-700 text-xs lg:text-sm font-bold"><RotateCcw size={14}/><span>重置</span></button></div>
               </div>
-
-              {/* Middle Section */}
-              <div className="flex-1 flex overflow-hidden relative"> 
-                {/* Left Sidebar */}
-                <div className="w-32 lg:w-40 xl:w-48 bg-[#0f172a] border-r border-slate-800 p-2 lg:p-3 flex flex-col gap-2 z-10 shadow-xl shrink-0 h-full">
-                  <div className="flex flex-col gap-1 items-center shrink-0 mb-2">
-                     <div className="text-amber-500 font-serif font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest flex items-center gap-1 w-full border-b border-amber-900/30 pb-1"><Crown size={12} /> 贵族</div>
-                     <div className="flex flex-col gap-2 justify-center w-full items-center">
-                        {nobles.length > 0 ? nobles.map(n => <NobleTile key={n.id} noble={n} />) : (<div className="text-slate-600 italic text-xs py-2">贵族离场</div>)}
-                     </div>
-                  </div>
-                  <div className="h-px bg-slate-800 w-full shrink-0 my-1"></div>
-                  <div className="flex items-center gap-2 text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest shrink-0"><ScrollText size={12} /> 游戏日志</div>
-                  <div className="flex-1 rounded-lg text-[10px] lg:text-xs overflow-y-auto font-mono space-y-2 custom-scrollbar pr-1 min-h-0 flex flex-col">
-                    <div className="mt-auto">
-                        {logs.map((l, i) => (<div key={i} className="text-slate-400 leading-tight border-l-2 border-slate-700 pl-2 py-0.5">{l}</div>))}
-                        <div ref={logsEndRef} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Center Game Board */}
-                <div className="flex-1 flex flex-col items-center justify-between relative z-0 overflow-hidden bg-[#0f172a] h-full">
-                    {/* Reserve Overlay Hint */}
-                    {isReserving && (
-                        <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-yellow-500/90 text-black px-4 py-1 rounded-full font-bold text-sm shadow-lg z-30 animate-bounce pointer-events-none">
-                            请选择一张卡片进行预留
-                        </div>
-                    )}
+              <div className="flex-1 flex overflow-hidden relative">
+                 <div className="w-32 lg:w-40 xl:w-48 bg-[#0f172a] border-r border-slate-800 p-2 lg:p-3 flex flex-col gap-2 z-10 shadow-xl shrink-0 h-full">
+                    <div className="flex flex-col gap-1 items-center shrink-0 mb-2"><div className="text-amber-500 font-serif font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest flex items-center gap-1 w-full border-b border-amber-900/30 pb-1"><Crown size={12} /> 贵族</div><div className="flex flex-col gap-2 justify-center w-full items-center">{nobles.length > 0 ? nobles.map(n => <NobleTile key={n.id} noble={n} />) : (<div className="text-slate-600 italic text-xs py-2">贵族离场</div>)}</div></div>
+                    <div className="h-px bg-slate-800 w-full shrink-0 my-1"></div>
+                    <div className="flex items-center gap-2 text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest shrink-0"><ScrollText size={12} /> 游戏日志</div>
+                    <div className="flex-1 rounded-lg text-[10px] lg:text-xs overflow-y-auto font-mono space-y-2 custom-scrollbar pr-1 min-h-0 flex flex-col"><div className="mt-auto">{logs.map((l, i) => (<div key={i} className="text-slate-400 leading-tight border-l-2 border-slate-700 pl-2 py-0.5">{l}</div>))}<div ref={logsEndRef} /></div></div>
+                 </div>
+                 <div className="flex-1 flex flex-col items-center justify-between relative z-0 overflow-hidden bg-[#0f172a] h-full">
+                    {isReserving && <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-yellow-500/90 text-black px-4 py-1 rounded-full font-bold text-sm shadow-lg z-30 animate-bounce pointer-events-none">请选择一张卡片进行预留</div>}
                     <div className="w-full h-full flex flex-col items-center justify-evenly py-2 lg:py-4">
-                        {[3, 2, 1].map(level => (
-                          <div key={level} className="flex gap-1.5 lg:gap-3 xl:gap-6 justify-center items-center w-full px-1 lg:px-2">
-                            <div className={`prevent-squish ${CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl border-2 flex flex-col items-center justify-center shadow-xl relative shrink-0 ${LEVEL_CONFIG[level].bg} ${LEVEL_CONFIG[level].borderColor}`}>
-                              <div className={`text-3xl lg:text-4xl font-serif font-black ${LEVEL_CONFIG[level].dotColor}`}>{Array(level).fill('●').join('')}</div>
-                              <div className="mt-1 text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Deck</div>
-                              <div className="text-xs lg:text-sm font-bold text-white">{deck[level].length}</div>
-                            </div>
-                            {board[level].map(card => (
-                                <Card 
-                                    key={card.id} 
-                                    card={card} 
-                                    canBuy={gameState === 'playing' && canAfford(currentPlayer, card)} 
-                                    isReserving={isReserving}
-                                    onBuy={handleCardInteraction} 
-                                />
-                            ))}
-                            {Array(4 - board[level].length).fill(0).map((_, i) => (
-                                <div key={i} className={`prevent-squish ${CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl border-2 border-dashed border-slate-700 bg-slate-800/30 shrink-0`}></div>
-                            ))}
-                          </div>
-                        ))}
+                        {[3, 2, 1].map(level => (<div key={level} className="flex gap-1.5 lg:gap-3 xl:gap-6 justify-center items-center w-full px-1 lg:px-2"><div className={`prevent-squish ${CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl border-2 flex flex-col items-center justify-center shadow-xl relative shrink-0 ${LEVEL_CONFIG[level].bg} ${LEVEL_CONFIG[level].borderColor}`}><div className={`text-3xl lg:text-4xl font-serif font-black ${LEVEL_CONFIG[level].dotColor}`}>{Array(level).fill('●').join('')}</div><div className="mt-1 text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Deck</div><div className="text-xs lg:text-sm font-bold text-white">{deck[level].length}</div></div>{board[level].map(card => (<Card key={card.id} card={card} canBuy={gameState === 'playing' && canAfford(currentPlayer, card)} isReserving={isReserving} onBuy={handleCardInteraction} />))}{Array(4 - board[level].length).fill(0).map((_, i) => (<div key={i} className={`prevent-squish ${CARD_SIZE_CLASSES} rounded-lg lg:rounded-xl border-2 border-dashed border-slate-700 bg-slate-800/30 shrink-0`}></div>))}</div>))}
                     </div>
-                </div>
-
-                {/* Right Sidebar */}
-                <div className="w-32 lg:w-36 xl:w-40 bg-[#0f172a] border-l border-slate-800 p-2 lg:p-3 flex flex-col gap-1 z-10 shadow-xl shrink-0 h-full overflow-y-auto custom-scrollbar">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 text-center shrink-0">宝石银行</div>
-                  <div className="flex-1 flex flex-col gap-1 lg:gap-2 justify-between min-h-0">
-                    <button 
-                        onClick={() => handleGemClick('gold')} 
-                        disabled={bank.gold === 0 && !isReserving}
-                        className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center border transition-all min-h-[40px] ${isReserving ? 'bg-yellow-500 border-yellow-300 ring-2 ring-yellow-400' : 'bg-yellow-900/10 border-yellow-900/30 opacity-80 hover:opacity-100 active:scale-95'}`}
-                    >
-                        <GemToken type="gold" size="md" showCount={false} />
-                        {/* 修改：文字保持“心灵宝石”，通过背景色区分状态 */}
-                        <span className={`text-[10px] lg:text-xs font-bold mt-0.5 ${isReserving ? 'text-black' : 'text-yellow-700'}`}>心灵宝石</span>
-                        <span className={`absolute top-1 right-2 text-xs font-black ${isReserving ? 'text-black' : 'text-yellow-800'}`}>{bank.gold}</span>
-                    </button>
-                    {GEM_TYPES.map(type => (
-                      <button key={type} onClick={() => handleGemClick(type)} disabled={bank[type] === 0 || gameState !== 'playing'} className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center transition-all group min-h-[40px] bg-slate-800/40 border border-slate-700 active:bg-slate-700 ${selectedGems.includes(type) ? 'ring-2 ring-emerald-500 bg-slate-800' : ''} ${bank[type] === 0 ? 'opacity-30 grayscale cursor-not-allowed' : ''}`}>
-                        <GemToken type={type} size="md" showCount={false} />
-                        <span className="text-[10px] font-bold text-slate-400 mt-0.5 group-hover:text-white">{GEM_STYLES[type].label}</span>
-                        <span className="absolute top-1 right-2 text-xs font-black text-slate-600 group-hover:text-slate-300">{bank[type]}</span>
-                        {selectedGems.filter(g => g === type).length > 0 && (<div className="absolute top-1 left-1 bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shadow-lg border border-slate-900 z-10">{selectedGems.filter(g => g === type).length}</div>)}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-1 space-y-1 shrink-0">
-                     {selectedGems.length > 0 ? (
-                      <><button onClick={confirmTakeGems} className="w-full py-2 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-bold rounded-lg shadow-lg active:scale-95 transition-all text-xs">确认</button>
-                        <button onClick={() => setSelectedGems([])} className="w-full py-1 text-slate-500 text-[10px] font-bold uppercase tracking-wider hover:text-white">取消</button></>
-                     ) : (<div className="p-2 rounded bg-slate-900/50 border border-slate-800 text-center"><p className="text-[10px] text-slate-500">轮到 <span className="text-amber-500 font-bold">{currentPlayer.name}</span></p></div>)}
-                  </div>
-                </div>
+                 </div>
+                 <div className="w-32 lg:w-36 xl:w-40 bg-[#0f172a] border-l border-slate-800 p-2 lg:p-3 flex flex-col gap-1 z-10 shadow-xl shrink-0 h-full overflow-y-auto custom-scrollbar">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 text-center shrink-0">宝石银行</div>
+                    <div className="flex-1 flex flex-col gap-1 lg:gap-2 justify-between min-h-0">
+                        <button onClick={() => handleGemClick('gold')} disabled={bank.gold === 0 && !isReserving} className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center border transition-all min-h-[40px] ${isReserving ? 'bg-yellow-500 border-yellow-300 ring-2 ring-yellow-400' : 'bg-yellow-900/10 border-yellow-900/30 opacity-80 hover:opacity-100 active:scale-95'}`}><GemToken type="gold" size="md" showCount={false} /><span className={`text-[10px] lg:text-xs font-bold mt-0.5 ${isReserving ? 'text-black' : 'text-yellow-700'}`}>心灵宝石</span><span className={`absolute top-1 right-2 text-xs font-black ${isReserving ? 'text-black' : 'text-yellow-800'}`}>{bank.gold}</span></button>
+                        {GEM_TYPES.map(type => (<button key={type} onClick={() => handleGemClick(type)} disabled={bank[type] === 0 || gameState !== 'playing'} className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center transition-all group min-h-[40px] bg-slate-800/40 border border-slate-700 active:bg-slate-700 ${selectedGems.includes(type) ? 'ring-2 ring-emerald-500 bg-slate-800' : ''} ${bank[type] === 0 ? 'opacity-30 grayscale cursor-not-allowed' : ''}`}><GemToken type={type} size="md" showCount={false} /><span className="text-[10px] font-bold text-slate-400 mt-0.5 group-hover:text-white">{GEM_STYLES[type].label}</span><span className="absolute top-1 right-2 text-xs font-black text-slate-600 group-hover:text-slate-300">{bank[type]}</span>{selectedGems.filter(g => g === type).length > 0 && (<div className="absolute top-1 left-1 bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shadow-lg border border-slate-900 z-10">{selectedGems.filter(g => g === type).length}</div>)}</button>))}
+                    </div>
+                    <div className="mt-1 space-y-1 shrink-0">{selectedGems.length > 0 ? (<><button onClick={confirmTakeGems} className="w-full py-2 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-bold rounded-lg shadow-lg active:scale-95 transition-all text-xs">确认</button><button onClick={() => setSelectedGems([])} className="w-full py-1 text-slate-500 text-[10px] font-bold uppercase tracking-wider hover:text-white">取消</button></>) : (<div className="p-2 rounded bg-slate-900/50 border border-slate-800 text-center"><p className="text-[10px] text-slate-500">轮到 <span className="text-amber-500 font-bold">{currentPlayer ? currentPlayer.name : ''}</span></p></div>)}</div>
+                 </div>
               </div>
 
-              {/* Footer */}
               <div className="h-28 lg:h-36 xl:h-44 bg-[#0f172a] border-t border-slate-800 grid grid-cols-2 divide-x divide-slate-800 z-30 shrink-0 shadow-2xl">
-                {players.map((p, idx) => {
-                  const isActive = currentPlayerIndex === idx;
-                  return (
-                  <div key={p.id} className={`flex transition-colors relative ${isActive ? 'bg-slate-900/50 -mt-[2px] z-10 box-content shadow-[inset_0_0_30px_rgba(245,158,11,0.1)]' : 'bg-[#0f172a]'}`}>
-                    {/* Active turn indicator - Thinner gradient bar */}
-                    {isActive && (
-                        <div className="absolute top-0 left-0 w-full h-1 lg:h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(245,158,11,0.8)] z-20"></div>
-                    )}
-                    {isActive && <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md animate-pulse">当前回合</div>}
-                    
-                    <div className="w-20 lg:w-24 xl:w-28 flex flex-col items-center justify-center p-1 border-r border-slate-800/50 gap-1 lg:gap-2">
-                       <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center border-2 shadow-lg transition-transform ${isActive ? 'bg-amber-600 border-amber-400 text-white scale-110' : 'bg-slate-800 border-slate-700 text-slate-500'} overflow-hidden`}>
-                           <User size={18} />
-                       </div>
-                       <div className="text-center"><div className={`font-bold text-xs lg:text-sm leading-none mb-0.5 ${isActive ? 'text-white' : 'text-slate-500'}`}>{p.name}</div></div>
-                       <div className="flex flex-col items-center bg-black/20 p-1 rounded-lg w-full"><div className="text-yellow-500 font-black text-lg lg:text-xl">{p.score}</div></div>
-                    </div>
-                    <div className="w-10 lg:w-14 border-r border-slate-800/50 flex flex-col p-1 bg-black/10">
-                       <div className="text-[8px] text-slate-600 font-bold uppercase mb-1 text-center">贵族 ({p.visitedNobles.length})</div>
-                       <div className="flex-1 flex flex-col gap-1 items-center justify-start overflow-y-auto custom-scrollbar">
-                          {p.visitedNobles.length > 0 ? p.visitedNobles.map((n, i) => (<MiniNoble key={i} noble={n} />)) : (<div className="w-8 h-8 rounded border border-dashed border-slate-700 flex items-center justify-center opacity-30"><Crown size={14} /></div>)}
-                       </div>
-                    </div>
-                    <div className="flex-1 flex flex-col border-r border-slate-800/50">
-                       <div className="flex-1 flex items-center px-1 lg:px-2 border-b border-slate-800/50 relative bg-black/10">
-                          <div className="flex-1 flex justify-around items-center">
-                              <div className="flex flex-col items-center"><GemToken type="gold" size="sm" count={p.gems.gold} className="scale-90" /></div>
-                              <div className="w-px h-6 bg-slate-700/30"></div>
-                              {GEM_TYPES.map(t => (<div key={t} className="flex flex-col items-center"><GemToken type={t} size="sm" count={p.gems[t]} className={`${p.gems[t] === 0 ? 'opacity-20 grayscale' : ''} scale-90`} /></div>))}
-                          </div>
-                       </div>
-                       <div className="flex-1 flex items-center px-1 lg:px-2 relative">
-                          <div className="flex-1 flex justify-around items-center">
-                              {GEM_TYPES.map(t => (<div key={t} className={`${p.bonuses[t] === 0 ? 'opacity-10 grayscale' : ''}`}><BonusCardStack type={t} count={p.bonuses[t]} /></div>))}
-                          </div>
-                       </div>
-                    </div>
-                    <div className="w-20 lg:w-28 flex flex-col p-1 lg:p-2 bg-black/20 relative group cursor-pointer hover:bg-white/5 transition-colors" onClick={() => setViewingReservedPlayer(p)}>
-                       <div className="flex items-center gap-1 mb-1 opacity-50 text-[8px] font-bold uppercase tracking-wider text-slate-400 text-center justify-center"><Grip size={10} /> 预留 ({p.reserved.length})</div>
-                       <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-1 items-center justify-center">
-                          {p.reserved.map((c) => {
-                            const style = GEM_STYLES[c.bonus];
-                            return (
-                                <div key={c.id} className={`w-full h-full rounded border-2 flex items-center justify-center relative shadow-md transition-transform ${style.cardBorder} ${style.cardBg}`}>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80">
-                                        <div className="scale-50"><GemIconSVG type={c.bonus} className={style.iconFill} /></div>
+                 {bottomPlayers.map((p) => {
+                     const isActive = p.id === currentPlayer.id;
+                     const isSingleView = bottomPlayers.length === 1;
+                     return (
+                      <div key={p.id} className={`flex transition-colors relative ${isActive ? 'bg-slate-900/50 -mt-[2px] z-10 box-content shadow-[inset_0_0_30px_rgba(245,158,11,0.1)]' : 'bg-[#0f172a]'} ${isSingleView ? 'col-span-2' : ''}`}>
+                        {isActive && <div className="absolute top-0 left-0 w-full h-1 lg:h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent shadow-[0_0_20px_rgba(245,158,11,0.8)] z-20"></div>}
+                        {isActive && <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md animate-pulse">当前回合</div>}
+                        <div className={`w-20 lg:w-24 xl:w-28 flex flex-col items-center justify-center p-1 border-r border-slate-800/50 gap-1 lg:gap-2 ${isSingleView ? 'pl-8' : ''}`}>
+                           <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center border-2 shadow-lg transition-transform ${isActive ? 'bg-amber-600 border-amber-400 text-white scale-110' : 'bg-slate-800 border-slate-700 text-slate-500'} overflow-hidden`}>{p.isComputer ? <BotIcon size={18}/> : (p.id===0?<JudyIcon size={18}/>:(p.id===1?<NickIcon size={18}/>:<UserIcon size={18}/>))}</div>
+                           <div className="text-center"><div className={`font-bold text-xs lg:text-sm leading-none mb-0.5 ${isActive ? 'text-white' : 'text-slate-500'}`}>{p.name}</div></div>
+                           <div className="flex flex-col items-center bg-black/20 p-1 rounded-lg w-full"><div className="text-yellow-500 font-black text-lg lg:text-xl">{p.score}</div></div>
+                        </div>
+                        <div className="w-10 lg:w-14 border-r border-slate-800/50 flex flex-col p-1 bg-black/10">
+                           <div className="text-[8px] text-slate-600 font-bold uppercase mb-1 text-center">贵族 ({p.visitedNobles.length})</div>
+                           <div className="flex-1 flex flex-col gap-1 items-center justify-start overflow-y-auto custom-scrollbar">{p.visitedNobles.length > 0 ? p.visitedNobles.map((n, i) => (<MiniNoble key={i} noble={n} />)) : (<div className="w-8 h-8 rounded border border-dashed border-slate-700 flex items-center justify-center opacity-30"><Crown size={14} /></div>)}</div>
+                        </div>
+                        <div className="flex-1 flex flex-col border-r border-slate-800/50">
+                           <div className="flex-1 flex items-center px-1 lg:px-2 border-b border-slate-800/50 relative bg-black/10">
+                              <div className="flex-1 flex justify-around items-center"><div className="flex flex-col items-center"><GemToken type="gold" size="sm" count={p.gems.gold} className="scale-90" /></div><div className="w-px h-6 bg-slate-700/30"></div>{GEM_TYPES.map(t => (<div key={t} className="flex flex-col items-center"><GemToken type={t} size="sm" count={p.gems[t]} className={`${p.gems[t] === 0 ? 'opacity-20 grayscale' : ''} scale-90`} /></div>))}</div>
+                           </div>
+                           <div className="flex-1 flex items-center px-1 lg:px-2 relative">
+                              <div className="flex-1 flex justify-around items-center">{GEM_TYPES.map(t => (<div key={t} className={`${p.bonuses[t] === 0 ? 'opacity-10 grayscale' : ''}`}><BonusCardStack type={t} count={p.bonuses[t]} /></div>))}</div>
+                           </div>
+                        </div>
+                        <div className="w-20 lg:w-28 flex flex-col p-1 lg:p-2 bg-black/20 relative group cursor-pointer hover:bg-white/5 transition-colors" onClick={() => setViewingReservedPlayer(p)}>
+                           <div className="flex items-center gap-1 mb-1 opacity-50 text-[8px] font-bold uppercase tracking-wider text-slate-400 text-center justify-center"><Grip size={10} /> 预留 ({p.reserved.length})</div>
+                           <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-1 items-center justify-center">
+                              {p.reserved.map((c) => {
+                                const style = GEM_STYLES[c.bonus];
+                                return (
+                                    <div key={c.id} className={`w-full h-full rounded border-2 flex items-center justify-center relative shadow-md transition-transform ${style.cardBorder} ${style.cardBg}`}>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80"><div className="scale-50"><GemIconSVG type={c.bonus} className={style.iconFill} /></div></div>
+                                        <div className="absolute bottom-0.5 right-1 font-black text-white text-[8px] drop-shadow-md text-stroke-black">{c.points || ''}</div>
+                                        {canAfford(p, c) && <div className="absolute top-0 left-0 w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-lg"></div>}
                                     </div>
-                                    <div className="absolute bottom-0.5 right-1 font-black text-white text-[8px] drop-shadow-md text-stroke-black">{c.points || ''}</div>
-                                    {canAfford(p, c) && <div className="absolute top-0 left-0 w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-lg"></div>}
-                                </div>
-                            );
-                          })}
-                          {Array(4 - p.reserved.length).fill(0).map((_, i) => (<div key={i} className={`w-full h-full rounded border border-dashed border-slate-800/50 bg-black/10 flex items-center justify-center ${i + p.reserved.length >= 3 ? 'opacity-20 bg-red-900/10' : ''}`}>{i + p.reserved.length >= 3 ? <Lock size={10} className="text-slate-700" /> : null}</div>))}
-                       </div>
-                    </div>
-                  </div>
-                )})}
+                                );
+                              })}
+                              {Array(4 - p.reserved.length).fill(0).map((_, i) => (<div key={i} className={`w-full h-full rounded border border-dashed border-slate-800/50 bg-black/10 flex items-center justify-center ${i + p.reserved.length >= 3 ? 'opacity-20 bg-red-900/10' : ''}`}>{i + p.reserved.length >= 3 ? <Lock size={10} className="text-slate-700" /> : null}</div>))}
+                           </div>
+                        </div>
+                      </div>
+                     );
+                 })}
               </div>
 
-              {viewingReservedPlayer && (
-                  <ReservedCardsModal 
-                      player={viewingReservedPlayer} 
-                      currentPlayer={currentPlayer} 
-                      onClose={() => setViewingReservedPlayer(null)}
-                      onBuy={handleBuyCard}
-                  />
-              )}
+              {viewingReservedPlayer && <ReservedCardsModal player={viewingReservedPlayer} currentPlayer={currentPlayer} onClose={() => setViewingReservedPlayer(null)} onBuy={handleBuyCard} />}
 
               {gameState === 'end' && (
                 <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -979,7 +711,7 @@
                     <Trophy size={60} className="text-amber-500 mx-auto mb-4" />
                     <h2 className="text-3xl xl:text-5xl font-black text-white mb-2">{winner?.name} 获胜！</h2>
                     <div className="text-xl xl:text-2xl text-amber-400 mb-6 font-bold">总得分: {winner?.score}</div>
-                    <button onClick={initGame} className="w-full py-3 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold rounded-xl text-lg active:scale-95 transition-transform">再来一局</button>
+                    <button onClick={() => setGameState('setup')} className="w-full py-3 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold rounded-xl text-lg active:scale-95 transition-transform">再来一局</button>
                   </div>
                 </div>
               )}
