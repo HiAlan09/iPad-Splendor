@@ -65,9 +65,7 @@
         
         // 调整卡牌尺寸：修改宽度为原来的1.25倍左右，高度保持不变
         // 原始: w-24 h-32 sm:w-28 sm:h-36 md:w-30 md:h-40 lg:w-34 lg:h-44 xl:w-38 xl:h-48
-        // 1.6倍(过大): w-40 h-32 sm:w-44 sm:h-36 md:w-48 md:h-40 lg:w-56 lg:h-44 xl:w-60 xl:h-48
-        // 1.4倍(略大): w-34 h-32 sm:w-40 sm:h-36 md:w-44 md:h-40 lg:w-48 lg:h-44 xl:w-52 xl:h-48
-        // 1.25倍(修正): w-30 h-32 sm:w-36 sm:h-36 md:w-38 md:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48
+        // 1.25倍: w-30 h-32 sm:w-36 sm:h-36 md:w-38 md:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48
         const CARD_SIZE_CLASSES = "w-30 h-32 sm:w-36 sm:h-36 md:w-38 md:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48"; 
         
         const POINTS_TO_WIN = 15;
@@ -96,6 +94,7 @@
         const X = (p) => <IconBase {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>;
         const AlertCircle = (p) => <IconBase {...p}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></IconBase>;
         const Undo2 = (p) => <IconBase {...p}><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></IconBase>;
+        const Trash2 = (p) => <IconBase {...p}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></IconBase>;
         
         // 宝石SVG
         const Diamond = (p) => <IconBase {...p}><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0l-7.59 7.59Z"/></IconBase>;
@@ -192,7 +191,7 @@
         };
 
         const NobleTile = ({ noble }) => (
-          <div className={`prevent-squish w-full min-h-[120px] flex-1 rounded-lg border-4 border-amber-500/50 relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200 mb-1.5`}>
+          <div className={`prevent-squish w-full min-h-[120px] h-full rounded-lg border-4 border-amber-500/50 relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200`}>
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] mix-blend-overlay"></div>
             
             {/* Hero Name Header */}
@@ -233,6 +232,36 @@
                 </div>
             </div>
         );
+
+        const DiscardModal = ({ player, onDiscard, onConfirm }) => {
+            const total = Object.values(player.gems).reduce((a, b) => a + b, 0);
+            return (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 safe-top-padding">
+                    <div className="bg-slate-900 border-2 border-red-500 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative animate-bounce-sm">
+                        <div className="flex flex-col items-center gap-4">
+                            <AlertCircle size={48} className="text-red-500" />
+                            <h2 className="text-2xl font-black text-white">宝石超限！</h2>
+                            <p className="text-slate-300 text-center">您当前拥有 <span className="text-red-400 font-bold text-xl">{total}</span> 颗宝石，上限为 10 颗。<br/>请点击下方宝石进行弃牌，直到数量为 10。</p>
+                            
+                            <div className="flex flex-wrap justify-center gap-4 my-4">
+                                {GEM_TYPES.concat('gold').map(type => (
+                                    player.gems[type] > 0 && (
+                                        <button key={type} onClick={() => onDiscard(type)} className="relative group hover:-translate-y-1 transition-transform">
+                                            <GemToken type={type} size="xl" count={player.gems[type]} />
+                                            <div className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 size={12} /></div>
+                                        </button>
+                                    )
+                                ))}
+                            </div>
+
+                            <button onClick={onConfirm} disabled={total > 10} className={`w-full py-3 rounded-xl font-bold text-lg transition-all ${total > 10 ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500 text-white shadow-lg active:scale-95'}`}>
+                                {total > 10 ? `还需弃掉 ${total - 10} 颗` : '确认结束回合'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
         const DiceRollModal = ({ players, onRollComplete }) => {
             const [rolling, setRolling] = useState(false);
@@ -445,10 +474,12 @@
           const [notification, setNotification] = useState(null);
           const [notifType, setNotifType] = useState('error');
           const [isReserving, setIsReserving] = useState(false);
+          // New State for discarding
+          const [discardingPlayerIndex, setDiscardingPlayerIndex] = useState(null); 
           const logsEndRef = useRef(null);
 
           const currentPlayer = players.length > 0 ? players[turn % players.length] : null;
-          const isHumanTurn = currentPlayer && !currentPlayer.isComputer;
+          const isHumanTurn = currentPlayer && !currentPlayer.isComputer && discardingPlayerIndex === null;
 
           const showNotification = (msg, type = 'error') => { setNotification(msg); setNotifType(type); setTimeout(() => setNotification(null), 3000); };
           const addLog = (msg) => setLogs(prev => [...prev, msg].slice(-20));
@@ -456,10 +487,16 @@
 
           useEffect(() => {
               if (gameState === 'playing' && currentPlayer?.isComputer && !winner) {
+                  // If AI is in discard phase, handle it immediately
+                  if (discardingPlayerIndex === currentPlayer.id) {
+                      const timer = setTimeout(() => executeAIDiscard(), 1000);
+                      return () => clearTimeout(timer);
+                  }
+                  // Normal move
                   const timer = setTimeout(() => executeAIMove(), 1500);
                   return () => clearTimeout(timer);
               }
-          }, [turn, gameState, winner]);
+          }, [turn, gameState, winner, discardingPlayerIndex]);
 
           useEffect(() => { logsEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [logs]);
 
@@ -467,7 +504,32 @@
           const undo = () => {
               if (history.length === 0 || !isHumanTurn) return;
               const lastState = JSON.parse(history[history.length - 1]);
-              setDeck(lastState.deck); setBoard(lastState.board); setNobles(lastState.nobles); setBank(lastState.bank); setPlayers(lastState.players); setTurn(lastState.turn); setLogs(lastState.logs); setHistory(prev => prev.slice(0, -1)); setSelectedGems([]); setIsReserving(false); showNotification("已撤销上一步操作", 'success');
+              setDeck(lastState.deck); setBoard(lastState.board); setNobles(lastState.nobles); setBank(lastState.bank); setPlayers(lastState.players); setTurn(lastState.turn); setLogs(lastState.logs); setHistory(prev => prev.slice(0, -1)); setSelectedGems([]); setIsReserving(false); setDiscardingPlayerIndex(null); showNotification("已撤销上一步操作", 'success');
+          };
+
+          const executeAIDiscard = () => {
+              const p = players[discardingPlayerIndex];
+              const gemTotal = totalGems(p);
+              if (gemTotal <= MAX_GEMS) {
+                  setDiscardingPlayerIndex(null);
+                  endTurn(p);
+                  return;
+              }
+              // Simple AI discard: discard random available gem
+              const available = GEM_TYPES.concat('gold').filter(t => p.gems[t] > 0);
+              if (available.length > 0) {
+                  const type = available[Math.floor(Math.random() * available.length)];
+                  const newPlayer = { ...p, gems: { ...p.gems } };
+                  newPlayer.gems[type]--;
+                  const newBank = { ...bank };
+                  newBank[type]++;
+                  
+                  const newPlayers = [...players];
+                  newPlayers[discardingPlayerIndex] = newPlayer;
+                  setPlayers(newPlayers);
+                  setBank(newBank);
+                  // AI will re-trigger effect to discard more if needed
+              }
           };
 
           const executeAIMove = () => {
@@ -488,6 +550,7 @@
               }
 
               const availableTypes = GEM_TYPES.filter(t => bank[t] > 0);
+              // AI strategy for gems: similar but careful not to overfill if possible, but now we have discard logic so it is safe.
               if (availableTypes.length >= 3 && totalGems(p) <= 7) {
                   const toTake = availableTypes.slice(0, 3);
                   const newBank = { ...bank }; const newPlayer = { ...p, gems: { ...p.gems } };
@@ -496,6 +559,7 @@
                   addLog(`${p.name} 拿取: ${toTake.map(g => GEM_STYLES[g].label).join(' ')}`);
                   endTurn(newPlayer);
               } else if (availableTypes.length > 0 && totalGems(p) < MAX_GEMS) {
+                  // AI logic to take gems up to 10
                   const toTake = availableTypes.slice(0, Math.min(availableTypes.length, MAX_GEMS - totalGems(p)));
                   const newBank = { ...bank }; const newPlayer = { ...p, gems: { ...p.gems } };
                   toTake.forEach(g => { newBank[g]--; newPlayer.gems[g]++; });
@@ -506,6 +570,7 @@
                   if (board[1].length > 0 && p.reserved.length < 3) {
                       handleReserveCard(board[1][0]);
                   } else {
+                      // AI stuck? Just pass? Or reserve if gold available
                       endTurn(p); 
                   }
               }
@@ -585,14 +650,66 @@
             return true;
           };
 
+          // --- 核心修复：预留卡片逻辑 (允许拿取心灵宝石并触发弃牌) ---
           const handleReserveCard = (card) => {
             if (currentPlayer.reserved.length >= MAX_RESERVED) { if(isHumanTurn) showNotification("预留位已满", 'error'); return; }
             if (isHumanTurn) saveState();
+            
             const newPlayer = { ...currentPlayer, gems: { ...currentPlayer.gems }, reserved: [...currentPlayer.reserved, card] };
             const newBank = { ...bank };
-            if (newBank.gold > 0) { if (totalGems(newPlayer) < MAX_GEMS) { newBank.gold--; newPlayer.gems.gold++; addLog(`${newPlayer.name} 预留+心灵宝石`); } else addLog(`${newPlayer.name} 预留 (满)`); } else addLog(`${newPlayer.name} 预留 (无心灵宝石)`);
-            const newPlayers = [...players]; newPlayers[turn % players.length] = newPlayer; setPlayers(newPlayers);
-            replaceCardOnBoard(card); setBank(newBank); setIsReserving(false); endTurn(newPlayer);
+            
+            let gotGold = false;
+            // 无论宝石是否满，只要银行有金币，就拿
+            if (newBank.gold > 0) { 
+                newBank.gold--; 
+                newPlayer.gems.gold++; 
+                gotGold = true;
+            } 
+            
+            // 立即更新状态，不等待
+            const newPlayers = [...players]; 
+            newPlayers[turn % players.length] = newPlayer; 
+            setPlayers(newPlayers);
+            setBank(newBank);
+            replaceCardOnBoard(card); 
+            setIsReserving(false); 
+
+            // 检查是否爆仓
+            if (totalGems(newPlayer) > MAX_GEMS) {
+                setDiscardingPlayerIndex(newPlayer.id);
+                if (isHumanTurn) showNotification("宝石已满，请弃掉多余宝石", 'error');
+                addLog(`${newPlayer.name} 预留 (超限需弃牌)`);
+            } else {
+                if (gotGold) addLog(`${newPlayer.name} 预留+心灵宝石`); 
+                else addLog(`${newPlayer.name} 预留 (无心灵宝石)`);
+                endTurn(newPlayer);
+            }
+          };
+
+          // --- 处理弃牌逻辑 ---
+          const handleDiscardGem = (type) => {
+              const pIdx = discardingPlayerIndex;
+              const p = players[pIdx];
+              if (p.gems[type] > 0) {
+                  const newPlayer = { ...p, gems: { ...p.gems } };
+                  newPlayer.gems[type]--;
+                  const newBank = { ...bank };
+                  newBank[type]++;
+                  
+                  const newPlayers = [...players];
+                  newPlayers[pIdx] = newPlayer;
+                  
+                  setPlayers(newPlayers);
+                  setBank(newBank);
+              }
+          };
+
+          const confirmDiscard = () => {
+              const p = players[discardingPlayerIndex];
+              if (totalGems(p) <= MAX_GEMS) {
+                  setDiscardingPlayerIndex(null);
+                  endTurn(p);
+              }
           };
 
           const replaceCardOnBoard = (card) => { const lvl = card.level; const newBoard = { ...board }; const row = newBoard[lvl].filter(c => c.id !== card.id); if (deck[lvl].length > 0) row.push(deck[lvl].pop()); newBoard[lvl] = row; setBoard(newBoard); };
@@ -707,6 +824,15 @@
             <div className="h-full w-full bg-[#0f172a] text-slate-200 overflow-hidden font-sans select-none flex flex-col">
               {notification && <Notification msg={notification} type={notifType} />}
               
+              {/* 弃牌弹窗 */}
+              {discardingPlayerIndex !== null && players[discardingPlayerIndex] && (
+                  <DiscardModal 
+                      player={players[discardingPlayerIndex]} 
+                      onDiscard={handleDiscardGem}
+                      onConfirm={confirmDiscard}
+                  />
+              )}
+              
               {/* 顶部安全区背景条: 专门用于填补 iPad 状态栏 */}
               <div className="w-full bg-slate-900 z-50 shrink-0 safe-top-padding border-b border-slate-800"></div>
 
@@ -741,11 +867,15 @@
               
               <div className="flex-1 flex flex-col overflow-hidden relative min-h-0">
                  <div className="flex-1 flex overflow-hidden min-h-0 relative">
-                     {/* Left Sidebar: 贵族 (撑满高度) */}
+                     {/* Left Sidebar: 贵族 (撑满高度，固定5个槽位) */}
                      <div className="w-28 lg:w-32 xl:w-36 bg-[#0f172a] border-r border-slate-800 p-2 flex flex-col gap-2 z-10 shadow-xl shrink-0 h-full overflow-hidden">
                         <div className="text-amber-500 font-serif font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest flex items-center justify-center gap-1 w-full border-b border-amber-900/30 pb-1 shrink-0"><Crown size={12} /> 贵族</div>
-                        <div className="flex-1 flex flex-col gap-3 w-full h-full min-h-0 overflow-y-auto custom-scrollbar pt-1">
-                            {nobles.length > 0 ? nobles.map(n => <div key={n.id} className="flex-shrink-0 flex-1 min-h-[90px]"><NobleTile noble={n} /></div>) : (<div className="text-slate-600 italic text-xs py-2">贵族离场</div>)}
+                        <div className="flex-1 flex flex-col w-full h-full min-h-0 pt-1 pb-1 justify-between">
+                            {[0, 1, 2, 3, 4].map(i => (
+                                <div key={i} className="h-[19%] w-full">
+                                    {nobles[i] ? <NobleTile noble={nobles[i]} /> : <div className="w-full h-full border-2 border-dashed border-slate-800/30 rounded-lg opacity-20 flex items-center justify-center text-slate-700 font-bold text-xs">空</div>}
+                                </div>
+                            ))}
                         </div>
                      </div>
 
