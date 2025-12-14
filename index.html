@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Splendor">
     
-    <title>璀璨宝石 (Splendor) - iPad 终极优化版 V2</title>
+    <title>璀璨宝石 (Splendor) - iPad 终极优化版 V3</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -18,6 +18,7 @@
         /* 使用 dvh 修复 iPad Safari 地址栏问题 */
         html, body { height: 100dvh; width: 100vw; overflow: hidden; background-color: #0f172a; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: none; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
+        /* 根容器布局，包含顶部安全区处理 */
         #root { height: 100%; width: 100%; display: flex; flex-direction: column; }
         
         /* 顶部安全区填充类 */
@@ -62,9 +63,9 @@
         const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
         const MARVEL_HEROES = ["钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"];
         
-        // 卡牌尺寸 (中间区域)
-        const CARD_SIZE_CLASSES = "w-24 h-32 sm:w-28 sm:h-36 md:w-32 md:h-40 lg:w-36 lg:h-48 xl:w-40 xl:h-52"; 
-        // 预留卡牌尺寸 (底部单人区域 - 较小一点以适应高度)
+        // 卡牌尺寸
+        const CARD_SIZE_CLASSES = "w-24 h-32 sm:w-28 sm:h-36 md:w-32 md:h-40 lg:w-36 lg:h-44 xl:w-40 xl:h-48"; 
+        // 预留卡牌尺寸
         const RESERVED_CARD_SIZE = "w-20 h-28 lg:w-24 lg:h-32";
         
         const POINTS_TO_WIN = 15;
@@ -190,18 +191,31 @@
         };
 
         const NobleTile = ({ noble }) => (
-          <div className={`prevent-squish w-20 h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 rounded-lg border-4 border-amber-500/50 flex flex-col p-1 shadow-xl relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200`}>
+          <div className={`prevent-squish w-24 h-28 lg:w-28 lg:h-32 xl:w-32 xl:h-36 rounded-lg border-4 border-amber-500/50 flex flex-col p-1 shadow-xl relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200`}>
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] mix-blend-overlay"></div>
-            {/* Hero Name Header */}
-            <div className="absolute top-0 inset-x-0 bg-amber-500/20 py-0.5 text-center border-b border-amber-500/10"><span className="text-[10px] font-black text-amber-900 leading-none block transform -translate-y-px truncate px-1">{noble.hero}</span></div>
-            <div className="absolute top-5 right-0 p-0.5 opacity-20"><Crown size={30} className="text-amber-500" /></div>
             
-            <div className="relative z-10 w-full h-full flex flex-col justify-between items-center mt-3">
-              {/* Larger Points */}
-              <div className="text-3xl lg:text-4xl font-serif font-black text-amber-900 leading-none drop-shadow-sm self-start pl-1">{noble.points}</div>
-              <div className="flex flex-wrap gap-1 justify-end w-full content-end mb-0.5">
-                {Object.entries(noble.req).map(([type, amt]) => (<div key={type} className="flex justify-between items-center bg-white/70 rounded px-1 h-4 shadow-sm border border-amber-200/50 min-w-[28px]"><MiniGem type={type} /><span className="text-[10px] font-bold text-amber-950 ml-0.5">{amt}</span></div>))}
-              </div>
+            {/* Hero Name Header - Always at top */}
+            <div className="absolute top-0 inset-x-0 bg-amber-500/20 py-0.5 text-center border-b border-amber-500/10 z-10">
+                <span className="text-[10px] font-black text-amber-900 leading-none block transform -translate-y-px truncate px-1">{noble.hero}</span>
+            </div>
+
+            {/* Content Container */}
+            <div className="flex flex-row h-full w-full pt-4 relative z-0">
+                {/* Left Side: Points & Crown */}
+                <div className="w-1/2 flex flex-col justify-between items-start pl-1 pb-1">
+                    <div className="text-3xl lg:text-4xl font-serif font-black text-amber-900 leading-none drop-shadow-sm mt-1">{noble.points}</div>
+                    <div className="opacity-40 text-amber-600 self-center mb-1"><Crown size={32} /></div>
+                </div>
+
+                {/* Right Side: Requirements (Vertical Stack) */}
+                <div className="w-1/2 flex flex-col justify-end items-end gap-1 pr-1 pb-1">
+                    {Object.entries(noble.req).map(([type, amt]) => (
+                        <div key={type} className="flex justify-between items-center bg-white/70 rounded px-1.5 py-0.5 shadow-sm border border-amber-200/50 min-w-[32px]">
+                            <MiniGem type={type} />
+                            <span className="text-[10px] font-bold text-amber-950 ml-1">{amt}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
           </div>
         );
@@ -701,7 +715,7 @@
                  {topPlayers.length > 0 && (
                      <div className="flex-1 flex justify-center gap-2 lg:gap-4 px-2 overflow-hidden mx-2">
                         {topPlayers.map(p => (
-                            <div key={p.id} className={`flex items-center gap-2 px-2 lg:px-3 py-1 rounded-full border text-xs transition-all shrink min-w-0 max-w-[200px] ${p.id === currentPlayer.id ? 'bg-amber-900/50 border-amber-500 animate-pulse ring-1 ring-amber-500/50' : 'bg-slate-800 border-slate-700'}`}>
+                            <div key={p.id} className={`flex items-center gap-2 px-2 lg:px-3 py-1 rounded-full border text-xs transition-all shrink min-w-0 ${p.id === currentPlayer.id ? 'bg-amber-900/50 border-amber-500 animate-pulse ring-1 ring-amber-500/50' : 'bg-slate-800 border-slate-700'}`}>
                                 <div className="shrink-0">{p.isComputer ? <BotIcon size={18}/> : (p.character === 'nick'?<NickIcon size={18}/>:<JudyIcon size={18}/>)}</div> 
                                 <div className="min-w-0 flex-1 truncate">
                                     <div className="font-bold text-slate-300 flex items-center gap-1 mb-0.5 truncate">
