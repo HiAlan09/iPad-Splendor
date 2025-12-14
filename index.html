@@ -967,11 +967,11 @@
                                 {isActive && <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg shadow-md animate-pulse">当前回合</div>}
                                 
                                 {/* 1. 头像与分数 (Left) */}
-                                <div className="w-20 lg:w-28 flex flex-col items-center justify-center p-1 border-r border-slate-800/50 gap-1 lg:gap-2 shrink-0">
-                                   <div className="w-10 h-10 rounded-full border-2 border-amber-500 bg-amber-900/20 flex items-center justify-center shadow-lg text-white scale-110">
+                                <div className="w-24 lg:w-32 flex flex-col items-center justify-center p-2 border-r border-slate-800/50 gap-2 shrink-0">
+                                   <div className="w-12 h-12 rounded-full border-2 border-amber-500 bg-amber-900/20 flex items-center justify-center shadow-lg text-white scale-110">
                                        {p.isComputer ? <BotIcon size={24}/> : (p.character === 'nick'?<NickIcon size={24}/>:<JudyIcon size={24}/>)}
                                    </div>
-                                   <div className="font-bold text-xl text-white">{p.name}</div>
+                                   <div className="font-bold text-sm lg:text-base text-white whitespace-nowrap w-full text-center overflow-hidden text-ellipsis px-1">{p.name}</div>
                                    <div className="flex flex-col items-center bg-black/30 px-4 py-1 rounded-lg border border-amber-500/30"><div className="text-yellow-500 font-black text-2xl">{p.score}</div></div>
                                 </div>
 
