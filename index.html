@@ -194,14 +194,13 @@
         };
 
         const NobleTile = ({ noble }) => (
-          <div className={`prevent-squish w-20 h-28 lg:w-24 lg:h-32 xl:w-28 xl:h-36 rounded-lg border-4 border-amber-500/50 flex flex-col items-center p-2 lg:p-2.5 shadow-xl relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200`}>
+          <div className={`prevent-squish w-20 h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 rounded-lg border-4 border-amber-500/50 flex flex-col items-center justify-center p-1 shadow-xl relative overflow-hidden shrink-0 bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200`}>
             <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] mix-blend-overlay"></div>
-            <div className="absolute top-0 inset-x-0 bg-amber-500/20 py-0.5 text-center"><span className="text-[10px] font-black text-amber-900 leading-none block transform -translate-y-px">{noble.hero}</span></div>
-            <div className="absolute top-4 right-0 p-1 opacity-20"><Crown size={50} className="text-amber-500" /></div>
-            <div className="relative z-10 w-full h-full flex flex-col justify-between mt-3">
-              <div className="text-2xl lg:text-3xl xl:text-4xl font-serif font-black text-amber-900 self-start leading-none drop-shadow-sm">{noble.points}</div>
-              <div className="flex flex-col gap-0.5 lg:gap-1 self-end w-full pl-1 lg:pl-2">
-                {Object.entries(noble.req).map(([type, amt]) => (<div key={type} className="flex justify-between items-center bg-white/70 rounded px-1.5 lg:px-2 h-4 lg:h-5 shadow-sm border border-amber-200/50"><MiniGem type={type} /><span className="text-[10px] lg:text-xs font-bold text-amber-950">{amt}</span></div>))}
+            <div className="absolute top-0 right-0 p-0.5 opacity-20"><Crown size={30} className="text-amber-500" /></div>
+            <div className="relative z-10 w-full h-full flex flex-col justify-between items-center">
+              <div className="text-xl lg:text-2xl font-serif font-black text-amber-900 leading-none drop-shadow-sm self-start pl-1">{noble.points}</div>
+              <div className="flex flex-wrap gap-1 justify-end w-full content-end">
+                {Object.entries(noble.req).map(([type, amt]) => (<div key={type} className="flex justify-between items-center bg-white/70 rounded px-1 h-4 shadow-sm border border-amber-200/50 min-w-[28px]"><MiniGem type={type} /><span className="text-[10px] font-bold text-amber-950 ml-0.5">{amt}</span></div>))}
               </div>
             </div>
           </div>
@@ -701,19 +700,21 @@
                  <div className="flex gap-2"><button onClick={undo} disabled={history.length === 0 || !isHumanTurn} className="flex items-center gap-1.5 px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors border border-slate-700 text-xs lg:text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"><Undo2 size={14}/><span>撤销</span></button><button onClick={() => setGameState('setup')} className="flex items-center gap-1.5 px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-full text-slate-400 hover:text-white transition-colors border border-slate-700 text-xs lg:text-sm font-bold"><RotateCcw size={14}/><span>重置</span></button></div>
               </div>
               
-              <div className="flex-1 flex flex-col overflow-hidden relative min-h-0">
-                 {/* 上半部分：左(贵族)-中(卡牌)-右(银行) */}
-                 <div className="flex-1 flex overflow-hidden min-h-0 relative">
-                     {/* Left Sidebar: 贵族 (去除日志，只留贵族) */}
-                     <div className="w-24 lg:w-28 xl:w-32 bg-[#0f172a] border-r border-slate-800 p-2 flex flex-col gap-2 z-10 shadow-xl shrink-0 h-full overflow-hidden">
-                        <div className="text-amber-500 font-serif font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest flex items-center justify-center gap-1 w-full border-b border-amber-900/30 pb-1 shrink-0"><Crown size={12} /> 贵族</div>
-                        <div className="flex-1 flex flex-col gap-2 justify-start items-center w-full overflow-y-auto custom-scrollbar">
-                            {nobles.length > 0 ? nobles.map(n => <NobleTile key={n.id} noble={n} />) : (<div className="text-slate-600 italic text-xs py-2">贵族离场</div>)}
-                        </div>
-                     </div>
+              <div className="flex-1 flex overflow-hidden relative min-h-0">
+                 {/* 左侧 (贵族) - 中间 (卡牌+日志) - 右侧 (银行) */}
+                 
+                 {/* Left Sidebar: 贵族 (占据整列高度) */}
+                 <div className="w-24 lg:w-28 xl:w-32 bg-[#0f172a] border-r border-slate-800 p-2 flex flex-col gap-2 z-10 shadow-xl shrink-0 h-full overflow-hidden">
+                    <div className="text-amber-500 font-serif font-bold text-[10px] lg:text-xs mb-1 uppercase tracking-widest flex items-center justify-center gap-1 w-full border-b border-amber-900/30 pb-1 shrink-0"><Crown size={12} /> 贵族</div>
+                    <div className="flex-1 flex flex-col gap-2 justify-start items-center w-full overflow-y-auto custom-scrollbar">
+                        {nobles.length > 0 ? nobles.map(n => <NobleTile key={n.id} noble={n} />) : (<div className="text-slate-600 italic text-xs py-2">贵族离场</div>)}
+                    </div>
+                 </div>
 
-                     {/* Center Game Board: 扩大，占据 flex-1 */}
-                     <div className="flex-1 flex flex-col items-center justify-between relative z-0 overflow-hidden bg-[#0f172a] h-full p-2">
+                 {/* Center Area: 卡牌 (上) + 日志 (下) */}
+                 <div className="flex-1 flex flex-col h-full min-w-0">
+                     {/* Game Board: 扩大，占据 flex-1 */}
+                     <div className="flex-1 flex flex-col items-center justify-between relative z-0 overflow-hidden bg-[#0f172a] p-2 min-h-0">
                         {isReserving && <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-yellow-500/90 text-black px-4 py-1 rounded-full font-bold text-sm shadow-lg z-30 animate-bounce pointer-events-none">请选择一张卡片进行预留</div>}
                         <div className="w-full h-full flex flex-col items-center justify-evenly">
                             {[3, 2, 1].map(level => (
@@ -734,27 +735,27 @@
                         </div>
                      </div>
 
-                     {/* Right Sidebar: 宝石银行 */}
-                     <div className="w-28 lg:w-32 xl:w-36 bg-[#0f172a] border-l border-slate-800 p-2 flex flex-col gap-1 z-10 shadow-xl shrink-0 h-full overflow-hidden">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 text-center shrink-0 border-b border-slate-800 pb-1">宝石银行</div>
-                        <div className="flex-1 flex flex-col gap-1 justify-between min-h-0 overflow-y-auto custom-scrollbar">
-                            <button onClick={() => handleGemClick('gold')} disabled={bank.gold === 0 && !isReserving} className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center border transition-all min-h-[40px] ${isReserving ? 'bg-yellow-500 border-yellow-300 ring-2 ring-yellow-400' : 'bg-yellow-900/10 border-yellow-900/30 opacity-80 hover:opacity-100 active:scale-95'}`}><GemToken type="gold" size="md" showCount={false} /><span className={`text-[10px] lg:text-xs font-bold mt-0.5 ${isReserving ? 'text-black' : 'text-yellow-700'}`}>心灵宝石</span><span className={`absolute top-1 right-2 text-xs font-black ${isReserving ? 'text-black' : 'text-yellow-800'}`}>{bank.gold}</span></button>
-                            {GEM_TYPES.map(type => (<button key={type} onClick={() => handleGemClick(type)} disabled={bank[type] === 0 || gameState !== 'playing'} className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center transition-all group min-h-[40px] bg-slate-800/40 border border-slate-700 active:bg-slate-700 ${selectedGems.includes(type) ? 'ring-2 ring-emerald-500 bg-slate-800' : ''} ${bank[type] === 0 ? 'opacity-30 grayscale cursor-not-allowed' : ''}`}><GemToken type={type} size="md" showCount={false} /><span className="text-[10px] font-bold text-slate-400 mt-0.5 group-hover:text-white">{GEM_STYLES[type].label}</span><span className="absolute top-1 right-2 text-xs font-black text-slate-600 group-hover:text-slate-300">{bank[type]}</span>{selectedGems.filter(g => g === type).length > 0 && (<div className="absolute top-1 left-1 bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shadow-lg border border-slate-900 z-10">{selectedGems.filter(g => g === type).length}</div>)}</button>))}
+                     {/* Game Log: 位于底部，固定高度 */}
+                     <div className="h-24 lg:h-28 bg-[#0f172a] border-t border-slate-800 flex flex-col shrink-0 relative z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]">
+                        <div className="flex items-center gap-2 px-3 py-1 bg-slate-900/50 text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest shrink-0 border-b border-slate-800"><ScrollText size={12} /> 游戏日志</div>
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-2 font-mono text-[10px] lg:text-xs space-y-1">
+                            <div className="flex flex-col-reverse"> {/* 让最新日志在最上面或者自动滚动到底部 */}
+                                {logs.slice().reverse().map((l, i) => (
+                                    <div key={i} className="text-slate-400 leading-tight border-l-2 border-slate-700 pl-2 py-0.5">{l}</div>
+                                ))}
+                            </div>
                         </div>
-                        <div className="mt-1 space-y-1 shrink-0">{selectedGems.length > 0 ? (<><button onClick={confirmTakeGems} className="w-full py-2 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-bold rounded-lg shadow-lg active:scale-95 transition-all text-xs">确认</button><button onClick={() => setSelectedGems([])} className="w-full py-1 text-slate-500 text-[10px] font-bold uppercase tracking-wider hover:text-white">取消</button></>) : (<div className="p-2 rounded bg-slate-900/50 border border-slate-800 text-center"><p className="text-[10px] text-slate-500">轮到 <span className="text-amber-500 font-bold">{currentPlayer ? currentPlayer.name : ''}</span></p></div>)}</div>
                      </div>
                  </div>
 
-                 {/* 下半部分：游戏日志 (横向，位于卡牌下方) */}
-                 <div className="h-24 lg:h-28 bg-[#0f172a] border-t border-slate-800 flex flex-col shrink-0 relative z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)]">
-                    <div className="flex items-center gap-2 px-3 py-1 bg-slate-900/50 text-[10px] lg:text-xs font-bold text-slate-500 uppercase tracking-widest shrink-0 border-b border-slate-800"><ScrollText size={12} /> 游戏日志</div>
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-2 font-mono text-[10px] lg:text-xs space-y-1">
-                        <div className="flex flex-col-reverse"> {/* 让最新日志在最上面或者自动滚动到底部 */}
-                            {logs.slice().reverse().map((l, i) => (
-                                <div key={i} className="text-slate-400 leading-tight border-l-2 border-slate-700 pl-2 py-0.5">{l}</div>
-                            ))}
-                        </div>
+                 {/* Right Sidebar: 宝石银行 (占据整列高度) */}
+                 <div className="w-28 lg:w-32 xl:w-36 bg-[#0f172a] border-l border-slate-800 p-2 flex flex-col gap-1 z-10 shadow-xl shrink-0 h-full overflow-hidden">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1 text-center shrink-0 border-b border-slate-800 pb-1">宝石银行</div>
+                    <div className="flex-1 flex flex-col gap-1 justify-between min-h-0 overflow-y-auto custom-scrollbar">
+                        <button onClick={() => handleGemClick('gold')} disabled={bank.gold === 0 && !isReserving} className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center border transition-all min-h-[40px] ${isReserving ? 'bg-yellow-500 border-yellow-300 ring-2 ring-yellow-400' : 'bg-yellow-900/10 border-yellow-900/30 opacity-80 hover:opacity-100 active:scale-95'}`}><GemToken type="gold" size="md" showCount={false} /><span className={`text-[10px] lg:text-xs font-bold mt-0.5 ${isReserving ? 'text-black' : 'text-yellow-700'}`}>心灵宝石</span><span className={`absolute top-1 right-2 text-xs font-black ${isReserving ? 'text-black' : 'text-yellow-800'}`}>{bank.gold}</span></button>
+                        {GEM_TYPES.map(type => (<button key={type} onClick={() => handleGemClick(type)} disabled={bank[type] === 0 || gameState !== 'playing'} className={`prevent-squish relative flex-1 rounded-lg lg:rounded-xl flex flex-col items-center justify-center transition-all group min-h-[40px] bg-slate-800/40 border border-slate-700 active:bg-slate-700 ${selectedGems.includes(type) ? 'ring-2 ring-emerald-500 bg-slate-800' : ''} ${bank[type] === 0 ? 'opacity-30 grayscale cursor-not-allowed' : ''}`}><GemToken type={type} size="md" showCount={false} /><span className="text-[10px] font-bold text-slate-400 mt-0.5 group-hover:text-white">{GEM_STYLES[type].label}</span><span className="absolute top-1 right-2 text-xs font-black text-slate-600 group-hover:text-slate-300">{bank[type]}</span>{selectedGems.filter(g => g === type).length > 0 && (<div className="absolute top-1 left-1 bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shadow-lg border border-slate-900 z-10">{selectedGems.filter(g => g === type).length}</div>)}</button>))}
                     </div>
+                    <div className="mt-1 space-y-1 shrink-0">{selectedGems.length > 0 ? (<><button onClick={confirmTakeGems} className="w-full py-2 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-bold rounded-lg shadow-lg active:scale-95 transition-all text-xs">确认</button><button onClick={() => setSelectedGems([])} className="w-full py-1 text-slate-500 text-[10px] font-bold uppercase tracking-wider hover:text-white">取消</button></>) : (<div className="p-2 rounded bg-slate-900/50 border border-slate-800 text-center"><p className="text-[10px] text-slate-500">轮到 <span className="text-amber-500 font-bold">{currentPlayer ? currentPlayer.name : ''}</span></p></div>)}</div>
                  </div>
               </div>
 
