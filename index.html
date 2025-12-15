@@ -63,7 +63,7 @@
         const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
         const MARVEL_HEROES = ["钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"];
         
-        // 调整卡牌尺寸：修改宽度为原来的1.25倍左右，高度保持不变
+        // 调整卡牌尺寸
         const CARD_SIZE_CLASSES = "w-30 h-32 sm:w-36 sm:h-36 md:w-38 md:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48"; 
         
         const POINTS_TO_WIN = 15;
@@ -512,31 +512,44 @@
           };
 
           const executeAIDiscard = () => {
-              const p = players[discardingPlayerIndex];
-              const gemTotal = totalGems(p);
-              if (gemTotal <= MAX_GEMS) {
+              const pIdx = discardingPlayerIndex;
+              const p = players[pIdx];
+              let currentTotal = totalGems(p);
+              
+              if (currentTotal <= MAX_GEMS) {
                   setDiscardingPlayerIndex(null);
                   endTurn(p);
                   return;
               }
-              // Simple AI discard: discard random available gem
-              const available = GEM_TYPES.concat('gold').filter(t => p.gems[t] > 0);
-              if (available.length > 0) {
-                  const type = available[Math.floor(Math.random() * available.length)];
-                  const newPlayer = { ...p, gems: { ...p.gems } };
-                  newPlayer.gems[type]--;
-                  const newBank = { ...bank };
-                  newBank[type]++;
-                  
-                  const newPlayers = [...players];
-                  newPlayers[discardingPlayerIndex] = newPlayer;
-                  setPlayers(newPlayers);
-                  setBank(newBank);
-                  
-                  // ADD LOG HERE
-                  addLog(`${p.name} 弃掉: ${GEM_STYLES[type].label}`);
-                  // AI will re-trigger effect to discard more if needed
+
+              // Synchronous discard logic to prevent loop
+              let tempGems = { ...p.gems };
+              let tempBank = { ...bank };
+              const availableTypes = GEM_TYPES.concat('gold');
+              let discardedLog = [];
+
+              while (currentTotal > MAX_GEMS) {
+                  const typesWithGems = availableTypes.filter(t => tempGems[t] > 0);
+                  if (typesWithGems.length === 0) break;
+                  const typeToRemove = typesWithGems[Math.floor(Math.random() * typesWithGems.length)];
+                  tempGems[typeToRemove]--;
+                  tempBank[typeToRemove]++;
+                  currentTotal--;
+                  discardedLog.push(GEM_STYLES[typeToRemove].label);
               }
+
+              const newPlayers = [...players];
+              newPlayers[pIdx] = { ...p, gems: tempGems };
+              
+              setPlayers(newPlayers);
+              setBank(tempBank);
+              setDiscardingPlayerIndex(null);
+              
+              if (discardedLog.length > 0) {
+                  addLog(`${p.name} 弃掉: ${discardedLog.join(', ')}`);
+              }
+              
+              endTurn(newPlayers[pIdx]);
           };
 
           const executeAIMove = () => {
