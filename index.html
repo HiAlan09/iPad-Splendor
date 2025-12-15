@@ -63,7 +63,7 @@
         const GEM_TYPES = ['emerald', 'sapphire', 'ruby', 'diamond', 'onyx'];
         const MARVEL_HEROES = ["钢铁侠", "美国队长", "雷神", "绿巨人", "黑寡妇", "鹰眼", "奇异博士", "黑豹", "蜘蛛侠", "惊奇队长", "蚁人", "猩红女巫", "幻视", "洛基", "灭霸", "星爵", "格鲁特", "火箭浣熊"];
         
-        // 调整卡牌尺寸
+        // 调整卡牌尺寸：修改宽度为原来的1.25倍左右，高度保持不变
         const CARD_SIZE_CLASSES = "w-30 h-32 sm:w-36 sm:h-36 md:w-38 md:h-40 lg:w-44 lg:h-44 xl:w-48 xl:h-48"; 
         
         const POINTS_TO_WIN = 15;
@@ -556,41 +556,155 @@
               const p = currentPlayer;
               const difficulty = setupConfig.difficulty;
               const allCards = [...p.reserved, ...board[1], ...board[2], ...board[3]];
-              let affordable = allCards.filter(c => canAfford(p, c));
+              const affordable = allCards.filter(c => canAfford(p, c));
               
+              // --- 1. 购买逻辑 ---
               if (affordable.length > 0) {
+                  let target = null;
+
                   if (difficulty === 'easy') {
-                      const target = affordable[Math.floor(Math.random() * affordable.length)];
-                      handleBuyCard(target, p.reserved.some(r => r.id === target.id), false);
-                  } else {
+                      // 简单: 随机购买
+                      target = affordable[Math.floor(Math.random() * affordable.length)];
+                  } else if (difficulty === 'normal') {
+                      // 普通: 优先买分高的，其次买等级高的
                       affordable.sort((a, b) => b.points - a.points || a.level - b.level);
-                      handleBuyCard(affordable[0], p.reserved.some(r => r.id === affordable[0].id), false);
+                      target = affordable[0];
+                  } else {
+                      // 困难: 
+                      // 1. 如果能赢，直接买
+                      const winnerCard = affordable.find(c => p.score + c.points >= POINTS_TO_WIN);
+                      if (winnerCard) {
+                          target = winnerCard;
+                      } else {
+                          // 2. 优先买能凑贵族的颜色的卡
+                          // 计算当前最接近的贵族缺什么颜色
+                          const nobleNeeds = {};
+                          nobles.forEach(n => {
+                              Object.entries(n.req).forEach(([color, count]) => {
+                                  if (p.bonuses[color] < count) {
+                                      nobleNeeds[color] = (nobleNeeds[color] || 0) + 1;
+                                  }
+                              });
+                          });
+                          
+                          // 给卡片评分：基础分(分数*2) + 贵族需求分(如果这个卡的颜色是贵族需要的+3) - 消耗分(消耗宝石少+1)
+                          affordable.sort((a, b) => {
+                              const scoreA = (a.points * 2) + (nobleNeeds[a.bonus] ? 3 : 0) - (Object.values(a.cost).reduce((x,y)=>x+y,0) * 0.1);
+                              const scoreB = (b.points * 2) + (nobleNeeds[b.bonus] ? 3 : 0) - (Object.values(b.cost).reduce((x,y)=>x+y,0) * 0.1);
+                              return scoreB - scoreA;
+                          });
+                          target = affordable[0];
+                      }
                   }
+                  
+                  if (target) {
+                      handleBuyCard(target, p.reserved.some(r => r.id === target.id), false);
+                      return;
+                  }
+              }
+
+              // --- 2. 预留逻辑 ---
+              // 只有当手牌不满，且银行有金币时考虑预留
+              if (p.reserved.length < MAX_RESERVED && bank.gold > 0) {
+                  let shouldReserve = false;
+                  let reserveTarget = null;
+
+                  if (difficulty === 'hard') {
+                      // 困难: 宝石快满(>8)或者场上有高级卡(Level 3)看起来不错时预留
+                      if (totalGems(p) >= 8 || Math.random() > 0.6) {
+                          // 找一张分最高的 Level 3 卡
+                          const level3Cards = board[3];
+                          if (level3Cards.length > 0) {
+                              level3Cards.sort((a, b) => b.points - a.points);
+                              reserveTarget = level3Cards[0];
+                              shouldReserve = true;
+                          }
+                      }
+                  } else if (difficulty === 'normal') {
+                      // 普通: 偶尔随机预留 Level 2
+                      if (Math.random() > 0.8 && board[2].length > 0) {
+                          reserveTarget = board[2][Math.floor(Math.random() * board[2].length)];
+                          shouldReserve = true;
+                      }
+                  }
+                  // 简单: 极少预留，不做特殊处理
+
+                  if (shouldReserve && reserveTarget) {
+                      handleReserveCard(reserveTarget);
+                      return;
+                  }
+              }
+
+              // --- 3. 拿取宝石逻辑 ---
+              const availableTypes = GEM_TYPES.filter(t => bank[t] > 0);
+              if (availableTypes.length === 0) {
+                  endTurn(p); // 无事可做
                   return;
               }
 
-              const availableTypes = GEM_TYPES.filter(t => bank[t] > 0);
-              // AI strategy for gems: similar but careful not to overfill if possible, but now we have discard logic so it is safe.
-              if (availableTypes.length >= 3 && totalGems(p) <= 7) {
-                  const toTake = availableTypes.slice(0, 3);
-                  const newBank = { ...bank }; const newPlayer = { ...p, gems: { ...p.gems } };
+              let toTake = [];
+
+              if (difficulty === 'hard') {
+                  // 困难: 智能拿取。找到一张买不起但最想要的卡(比如预留的，或者场上分最高的)，拿它缺少的颜色
+                  const wishList = [...p.reserved, ...board[3], ...board[2]].filter(c => !canAfford(p, c));
+                  if (wishList.length > 0) {
+                      // 简单按分数排序
+                      wishList.sort((a, b) => b.points - a.points);
+                      const targetCard = wishList[0];
+                      
+                      // 计算缺少的颜色
+                      const missingColors = [];
+                      Object.entries(targetCard.cost).forEach(([color, cost]) => {
+                          const has = p.gems[color] + p.bonuses[color];
+                          if (has < cost && bank[color] > 0) {
+                              missingColors.push(color);
+                          }
+                      });
+
+                      // 优先拿缺少的颜色
+                      toTake = missingColors.slice(0, 3);
+                      
+                      // 如果没凑够3个，再补其他的
+                      if (toTake.length < 3) {
+                          const others = availableTypes.filter(t => !toTake.includes(t));
+                          toTake = [...toTake, ...others.slice(0, 3 - toTake.length)];
+                      }
+                  }
+              } 
+              
+              // 如果上面逻辑没生成或者难度不是hard，使用默认逻辑
+              if (toTake.length === 0) {
+                  // 尝试拿3个不同的
+                  if (availableTypes.length >= 3 && totalGems(p) <= 7) {
+                      // 优先拿库存少的 (Normal) 或随机 (Easy)
+                      if (difficulty === 'normal') {
+                          availableTypes.sort((a, b) => p.gems[a] - p.gems[b]);
+                      } else {
+                          shuffleArray(availableTypes);
+                      }
+                      toTake = availableTypes.slice(0, 3);
+                  } else {
+                      // 拿尽可能多的
+                      toTake = availableTypes.slice(0, Math.min(availableTypes.length, MAX_GEMS - totalGems(p)));
+                  }
+              }
+
+              // 执行拿取
+              if (toTake.length > 0) {
+                  const newBank = { ...bank }; 
+                  const newPlayer = { ...p, gems: { ...p.gems } };
                   toTake.forEach(g => { newBank[g]--; newPlayer.gems[g]++; });
-                  setBank(newBank); const newPlayers = [...players]; newPlayers[turn % players.length] = newPlayer; setPlayers(newPlayers);
-                  addLog(`${p.name} 拿取: ${toTake.map(g => GEM_STYLES[g].label).join(' ')}`);
-                  endTurn(newPlayer);
-              } else if (availableTypes.length > 0 && totalGems(p) < MAX_GEMS) {
-                  // AI logic to take gems up to 10
-                  const toTake = availableTypes.slice(0, Math.min(availableTypes.length, MAX_GEMS - totalGems(p)));
-                  const newBank = { ...bank }; const newPlayer = { ...p, gems: { ...p.gems } };
-                  toTake.forEach(g => { newBank[g]--; newPlayer.gems[g]++; });
-                  setBank(newBank); const newPlayers = [...players]; newPlayers[turn % players.length] = newPlayer; setPlayers(newPlayers);
+                  setBank(newBank); 
+                  const newPlayers = [...players]; 
+                  newPlayers[turn % players.length] = newPlayer; 
+                  setPlayers(newPlayers);
                   addLog(`${p.name} 拿取: ${toTake.map(g => GEM_STYLES[g].label).join(' ')}`);
                   endTurn(newPlayer);
               } else {
+                  // 实在没法拿宝石（比如满了又不想预留），只能跳过或盲目预留防止卡死
                   if (board[1].length > 0 && p.reserved.length < 3) {
                       handleReserveCard(board[1][0]);
                   } else {
-                      // AI stuck? Just pass? Or reserve if gold available
                       endTurn(p); 
                   }
               }
